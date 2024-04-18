@@ -250,7 +250,7 @@ def render_rec_sidebar():
                                     {st.session_state.student_id},
                                     '{st.session_state.timeBegin}',
                                     '{st.session_state.timeFinish}',
-                                    '{', '.join(st.session_state.interests)}',
+                                    '{st.session_state.selected_category}',
                                     '{st.session_state.purpose}',
                                     '{', '.join(st.session_state.selected_shops)}',
                                     '{model_choice_acc}',
