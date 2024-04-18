@@ -3,12 +3,11 @@ import streamlit as st
 import plotly.express as px
 from PIL import Image
 import numpy as np
-import csv
-import os
 from data_pre import Category,new_data as data
 from datetime import datetime, timedelta
 import plotly.express as px 
 from sqlalchemy import create_engine, text
+import pymysql
 
 # 数据库配置
 DATABASE_TYPE = 'mysql'
@@ -53,33 +52,38 @@ floor_images = {
 }
 
 ####################################################
+def click_welcome():
+    if st.session_state.student_id != "":
+        st.session_state.page = 'shopping_page'            
+        
 
-def render_welcome_page():
+
+def render_welcome_sidebar():
     with st.sidebar:
         st.markdown("# 请在下方填写对应信息并提交：😊")
         st.session_state.student_id = ""
         st.session_state.student_id = st.text_input("学号:",placeholder="2023214419")
-        #st.session_state.interests = ""
-        #st.session_state.interests = st.multiselect("选择你喜欢的方向:",Category,st.sidebar="可以选多个哦")
         st.session_state.purpose = st.selectbox("你可以预想一下你逛商场的目的:", ["购物", "吃饭", "休闲娱乐","随便逛逛"],placeholder=" ")
-        submitted = st.button("提交")
-    st.title("欢迎来到我们的商场推荐系统实验项目！💕")
+        submit = st.button("提交",on_click= click_welcome())
+        if submit:
+            if st.session_state.student_id == "":
+                st.sidebar.error("请填写完整信息！")
+            
+def render_welcome_main():
     col1, col2, col3 = st.columns([1,8,1]) # 调整比例以达到视觉上的居中
     with col2: # 使用中间的列来显示图片
         image = Image.open("title.jpg")
         st.image(image, width=1000) # 动态调整图片宽度以适应列宽
         
-    
+    st.title("欢迎来到我们的商场推荐系统实验项目！💕")
     st.markdown("## 请在侧边栏填写对应信息并提交，并仔细阅读下方的注意事项，我们将为您推荐最适合您的商场体验！")
     st.markdown("### 注意事项：")
     st.markdown("1. 请仔细填写信息，请勿随便填写。")
     st.markdown("2. 请模拟您的真实逛店想法，以帮助我们实现更好的推荐效果。")
     st.markdown("3. 请在提交前仔细核对您的信息，提交后将无法更改。")
-    if submitted:
-        if st.session_state.student_id == "" :
-            st.sidebar.error("请填写完整信息！")
-        else:
-            st.session_state.page = 'shopping_page'
+def render_welcome_page():
+    render_welcome_sidebar()
+    render_welcome_main()
             
 
 ##############################################   
@@ -105,12 +109,12 @@ def gettime():
 
 def sidebarclick():
     time_end = gettime()
-    time_to_compare = timedelta(seconds=10)
+    time_to_compare = timedelta(seconds=2)#改时间
     delta = time_end - st.session_state.time_s
     if delta > time_to_compare:
         st.session_state.selected_shops.append(st.session_state.selected_store)
         st.session_state.sidebar_input = str(int(st.session_state.sidebar_input)+1)
-    else : st.sidebar.error('时间间隔过短，请稍10s后再试')
+    else : st.sidebar.error('时间间隔过短，请稍2s后再试')
         
 
 def render_floor_sidebar2(): 
@@ -220,11 +224,11 @@ def render_rec_sidebar():
         rating_B = st.slider("给模型B给个主观评分，你会打几分?", 1, 5)
         recommendations_1 = []
         recommendations_2 = []
-        recommendations_1 = st.multiselect(
+        recommendations_1 = st.selectbox(
             "根据A模型要你选择下一个逛的店铺，你会选择：",
             ["推荐结果1", "推荐结果2", "推荐结果3", "推荐结果4", "推荐结果5","无"]
         )
-        recommendations_2 = st.multiselect(
+        recommendations_2 = st.selectbox(
             "根据B模型要你选择下一个逛的店铺，你会选择：",
             ["推荐结果1", "推荐结果2", "推荐结果3", "推荐结果4", "推荐结果5","无"]
         )
@@ -237,6 +241,7 @@ def render_rec_sidebar():
                     st.sidebar.error("未完成必填项目！")
                 else:
                 #链接数据库并导入
+                    st.session_state.timeFinish = gettime()
                     try:
                         engine = create_engine(DATABASE_URL)
                         with engine.connect() as conn:
