@@ -3,12 +3,20 @@ import streamlit as st
 import plotly.express as px
 from PIL import Image
 import numpy as np
-from data_pre import Category,new_data as data
+from data_pre import Category,SiteID,new_data as data
 from datetime import datetime, timedelta
 import plotly.express as px 
 from sqlalchemy import create_engine, text
 import pymysql
 
+import m 
+import trans
+import torch
+import random
+import time
+
+# 启用 wide mode
+st.set_page_config(layout="wide")
 # 数据库配置
 DATABASE_TYPE = 'mysql'
 DBAPI = 'pymysql'
@@ -21,8 +29,7 @@ PASSWORD = 'JK5DPc28ebYZEmhf'
 # 创建数据库连接URL
 DATABASE_URL = f"{DATABASE_TYPE}+{DBAPI}://{USERNAME}:{PASSWORD}@{HOST}:{PORT}/{DATABASE}"
 
-# 启用 wide mode
-st.set_page_config(layout="wide")
+
 
 custom_css = """
 <style>
@@ -40,8 +47,10 @@ st.markdown(custom_css, unsafe_allow_html=True)
 
 
 if 'page' not in st.session_state:
+    st.session_state.page = ""
     st.session_state.page = 'welcome'
     #st.session_state.page = 'rec_page'
+
    
 
 floor_images = {
@@ -52,37 +61,47 @@ floor_images = {
 }
 
 ####################################################
-def click_welcome():
-    if st.session_state.student_id != "":
-        st.session_state.page = 'shopping_page'            
-        
+def botton_c ():
+    # if st.session_state.student_id == "" or st.session_state.nickname == "" or st.session_state.purpose== "":
+    #     st.session_state.page = 'welcome'
+    # else: st.session_state.page = 'shopping_page' 
+    if st.session_state.student_id == "" or st.session_state.nickname == "" or st.session_state.purpose== "":
+        st.sidebar.error("请填写完整信息")
+    else : st.session_state.page = 'shopping_page' 
+
 
 
 def render_welcome_sidebar():
     with st.sidebar:
-        st.markdown("# 请在下方填写对应信息并提交：😊")
+        st.markdown("## 请在下方填写对应信息并提交：😊")
         st.session_state.student_id = ""
+        st.session_state.nickname = ""
+        st.session_state.purpose = ""
         st.session_state.student_id = st.text_input("学号:",placeholder="2023214419")
-        st.session_state.purpose = st.selectbox("你可以预想一下你逛商场的目的:", ["购物", "吃饭", "休闲娱乐","随便逛逛"],placeholder=" ")
-        submit = st.button("提交",on_click= click_welcome())
-        if submit:
-            if st.session_state.student_id == "":
-                st.sidebar.error("请填写完整信息！")
+        st.session_state.nickname = st.text_input("昵称:",placeholder="我们可以怎么称呼你呢")
+        st.session_state.purpose = st.multiselect("你可以预想一下你逛商场的目的:", ["购物", "吃饭", "休闲娱乐","随便逛逛"])
+        
+
+def rebder_welcom_botton():
+        st.session_state.submit = False
+        submit = st.sidebar.button("提交",on_click= botton_c)
+
+
+                
+    
             
 def render_welcome_main():
     col1, col2, col3 = st.columns([1,8,1]) # 调整比例以达到视觉上的居中
     with col2: # 使用中间的列来显示图片
         image = Image.open("title.jpg")
         st.image(image, width=1000) # 动态调整图片宽度以适应列宽
-        
-    st.title("欢迎来到我们的商场推荐系统实验项目！💕")
-    st.markdown("## 请在侧边栏填写对应信息并提交，并仔细阅读下方的注意事项，我们将为您推荐最适合您的商场体验！")
-    st.markdown("### 注意事项：")
-    st.markdown("1. 请仔细填写信息，请勿随便填写。")
-    st.markdown("2. 请模拟您的真实逛店想法，以帮助我们实现更好的推荐效果。")
-    st.markdown("3. 请在提交前仔细核对您的信息，提交后将无法更改。")
+    st.markdown("## 欢迎来到我们的商场推荐系统实验项目！💕")
+    st.write("""<span style="font-size:28px;font-weight:bold;">请尽量模拟您的真实逛店想法，</span>""", unsafe_allow_html=True)
+    st.write("""<span style="font-size:28px;font-weight:bold;padding-left:60px;">     输入您的初始逛店序列，</span>""", unsafe_allow_html=True)
+    st.write("""<span style="font-size:28px;font-weight:bold;padding-left:120px;">     以便为您推荐最佳逛店体验。</span>""", unsafe_allow_html=True)
 def render_welcome_page():
     render_welcome_sidebar()
+    rebder_welcom_botton()
     render_welcome_main()
             
 
@@ -95,27 +114,49 @@ def render_floor_sidebar():
 
     fig = px.pie(values=category_count.values, 
                 names=category_count.index.map(str), 
+                color_discrete_sequence=["#f58231", "#d495e0", "#ffd8b1", '#8475c5'],
                 title=f"{st.session_state.selected_category}各楼层分布")
-
+    fig.update_layout(margin=dict(t=40, b=0))
+    
     # 显示图表
-    fig.update_layout(width=400, height=300)
+    fig.update_layout(width=400, height=200)
     fig.update_traces(textinfo='label+value', textfont_size=14)
     st.sidebar.plotly_chart(fig)
-    st.sidebar.markdown("---")
+    # 设置自定义样式
+    custom_style = """
+    <style>
+    .divider {
+        margin-top: 1px;
+        margin-bottom: 5px;
+    }
+    </style>
+    """
+    # 使用 st.markdown() 和自定义样式来绘制分割线
+    st.markdown(custom_style, unsafe_allow_html=True)
+    st.sidebar.markdown('<hr class="divider">', unsafe_allow_html=True)
 
 def gettime():
     t = datetime.now()
     return t
 
 def sidebarclick():
-    time_end = gettime()
-    time_to_compare = timedelta(seconds=2)#改时间
-    delta = time_end - st.session_state.time_s
-    if delta > time_to_compare:
+    #时间检测
+    # time_end = gettime()
+    # time_to_compare = timedelta(seconds=2)#改时间
+    # delta = time_end - st.session_state.time_s
+    # if delta > time_to_compare:
+    #     st.session_state.selected_shops.append(st.session_state.selected_store)
+    #     st.session_state.sidebar_input = str(int(st.session_state.sidebar_input)+1)
+    # else : st.sidebar.error('时间间隔过短，请稍2s后再试')
+
+    #位置检测
+    if st.session_state.site == st.session_state.ture_site:
         st.session_state.selected_shops.append(st.session_state.selected_store)
+        st.session_state.shop_list.remove(st.session_state.selected_store) 
         st.session_state.sidebar_input = str(int(st.session_state.sidebar_input)+1)
-    else : st.sidebar.error('时间间隔过短，请稍2s后再试')
-        
+    else : st.sidebar.error('位置与店铺不匹配，请重新填写')
+
+
 
 def render_floor_sidebar2(): 
     st.session_state.selected_store = ''
@@ -123,64 +164,66 @@ def render_floor_sidebar2():
         st.session_state.sidebar_input = "1"
         st.session_state.selected_shops = []
         st.session_state.selected_store = ''
+        st.session_state.shop_list = []
     if st.session_state.sidebar_input == "1":
         st.session_state.time_s = gettime()
-        st.sidebar.markdown("👇请到对应楼层选择你想要的要逛的店铺：")
+        st.sidebar.markdown("请点击右侧平面图跳转至对应楼层进行浏览：")
         st.session_state.shop_list= data['StoreName'].unique().tolist()
-        st.session_state.selected_store=st.sidebar.selectbox(f"选择您第一个逛的商铺：",st.session_state.shop_list,key="select1")
-        st.sidebar.markdown("😊请确定您选择店铺在地图中的位置再点击确定")
+        st.session_state.selected_store=st.sidebar.selectbox("选择您第一个逛的商铺：",st.session_state.shop_list,key="select1")
+        st.session_state.site = st.sidebar.selectbox(f"请在右侧平面图中点击{st.session_state.selected_store}店铺，输入店铺位置信息，并填入进行验证",SiteID,key="check1")
+        st.session_state.ture_site = data.loc[data['StoreName'] == st.session_state.selected_store, 'plaza_unitid'].squeeze()
         st.sidebar.button("选第二个", on_click=sidebarclick)
     if st.session_state.sidebar_input == "2":
         st.session_state.time_s = gettime()
         selected_info = "👌您选择的商铺是：" + "-> ".join(st.session_state.selected_shops)
         st.sidebar.markdown(selected_info)
-        st.sidebar.markdown("👇请继续探索第二个您想逛的店铺：")
-        st.session_state.shop_list= data['StoreName'].unique().tolist()
         st.session_state.selected_store=st.sidebar.selectbox(f"选择您第二个逛的商铺：",st.session_state.shop_list,key="select2")
-        st.sidebar.markdown("😊请确定您选择店铺在地图中的位置再点击确定")
+        st.session_state.site = st.sidebar.selectbox(f"请在右侧平面图中点击{st.session_state.selected_store}店铺，输入店铺位置信息，并填入进行验证",SiteID,key="check2")
+        st.session_state.ture_site = data.loc[data['StoreName'] == st.session_state.selected_store, 'plaza_unitid'].squeeze()
         st.sidebar.button("选第三个", on_click=sidebarclick)
     if st.session_state.sidebar_input == "3":
         st.session_state.time_s = gettime()
         selected_info = "👌您选择的商铺是：" + "-> ".join(st.session_state.selected_shops)
         st.sidebar.markdown(selected_info)
-        st.sidebar.markdown("👇请继续探索第三个您想逛的店铺：")
-        st.session_state.shop_list= data['StoreName'].unique().tolist()
         st.session_state.selected_store=st.sidebar.selectbox(f"选择您第三个逛的商铺：",st.session_state.shop_list,key="select3")
-        st.sidebar.markdown("😊请确定您选择店铺在地图中的位置再点击确定")
+        st.session_state.site = st.sidebar.selectbox(f"请在右侧平面图中点击{st.session_state.selected_store}店铺，输入店铺位置信息，并填入进行验证",SiteID,key="check3")
+        st.session_state.ture_site = data.loc[data['StoreName'] == st.session_state.selected_store, 'plaza_unitid'].squeeze()
         st.sidebar.button('我选好了，开始推荐！',on_click= go_to_page_rec)
         st.sidebar.button("选第四个", on_click=sidebarclick)
     if st.session_state.sidebar_input == "4":
         st.session_state.time_s = gettime()
         selected_info = "👌您选择的商铺是：" + "-> ".join(st.session_state.selected_shops)   
         st.sidebar.markdown(selected_info)
-        st.sidebar.markdown("👇请继续探索第四个您想逛的店铺：")
-        st.session_state.shop_list= data['StoreName'].unique().tolist()
         st.session_state.selected_store=st.sidebar.selectbox(f"请选择您第四个逛的商铺：",st.session_state.shop_list,key="select4")
-        st.sidebar.markdown("😊请确定您选择店铺在地图中的位置再点击确定")
+        st.session_state.site = st.sidebar.selectbox(f"请在右侧平面图中点击{st.session_state.selected_store}店铺，输入店铺位置信息，并填入进行验证",SiteID,key="check4")
+        st.session_state.ture_site = data.loc[data['StoreName'] == st.session_state.selected_store, 'plaza_unitid'].squeeze()
         st.sidebar.button('我选好了，开始推荐！',on_click= go_to_page_rec)
         st.sidebar.button("选第五个", on_click=sidebarclick)
     if st.session_state.sidebar_input == "5":
         st.session_state.time_s = gettime()
         selected_info = "👌您选择的商铺是：" + "-> ".join(st.session_state.selected_shops)   
         st.sidebar.markdown(selected_info)
-        st.sidebar.markdown("👇请继续探索第五个您想逛的店铺：")
-        st.session_state.shop_list= data['StoreName'].unique().tolist()
         st.session_state.selected_store=st.sidebar.selectbox(f"请选择您第五个逛的商铺：",st.session_state.shop_list,key="select5")
-        st.sidebar.markdown("😊请确定您选择店铺在地图中的位置再点击确定")
+        st.session_state.site = st.sidebar.selectbox(f"请在右侧平面图中点击{st.session_state.selected_store}店铺，输入店铺位置信息，并填入进行验证",SiteID,key="check5")
+        st.session_state.ture_site = data.loc[data['StoreName'] == st.session_state.selected_store, 'plaza_unitid'].squeeze()
         st.sidebar.button('我选好了，开始推荐！！',on_click= go_to_page_rec)     
 
 
 def go_to_page_rec():
-    st.session_state.selected_shops.append(st.session_state.selected_store)
-    st.session_state.page = 'rec_page'
+    if st.session_state.site == st.session_state.ture_site:
+        st.session_state.selected_shops.append(st.session_state.selected_store)
+        st.session_state.page = 'rec_page'
+    else : st.sidebar.error('位置与店铺不匹配，请重新填写')
+
 
         
 def render_floor_page():
-    st.title(f"请沉浸浏览该商场交互平面图，选择你感兴趣的浏览路径!")
+    st.markdown("## 请沉浸浏览该商场交互平面图，感兴趣的逛店序列")
     st.write(f"👍点击查看具体的店铺信息~")
-    st.write(f"🙌使用滚轮可以放大缩小地体~")
+    st.write(f"🙌使用滚轮可以放大缩小平面图~")
     # 要嵌入的网址
     src_url = "http://111.231.19.111:8080/"
+    #src_url = "http://localhost:8080"
     # 要显示的部分的尺寸和位置
     position = {"top": -112, "left": 0, "width": 1600, "height": 700}
 
@@ -200,7 +243,10 @@ def render_floor_page():
     
 def render_shopping_page():
      
-    st.sidebar.title(f"欢迎学号为{st.session_state.student_id}的同学，来到我们的商场！")
+    st.sidebar.title(f"欢迎{st.session_state.nickname}同学，来到我们的商场！")
+    random.seed(int(time.time()))
+    st.session_state.random = 0
+    st.session_state.random = random.randint(1, 2)
     render_floor_sidebar()
     render_floor_sidebar2()
     render_floor_page()
@@ -218,18 +264,18 @@ def button_clicked():
 def render_rec_sidebar():       
     with st.sidebar:
         st.title("问卷调查")
-        model_choice_acc = st.selectbox("哪个模型的推荐列表更加匹配你此刻的逛店意图和需求？", ["模型A", "模型B"])
-        model_choice_sup = st.selectbox("哪个模型的推荐列表让你感觉更加出乎意料？", ["模型A", "模型B"])
+        model_choice_acc = st.selectbox("推荐准确性：哪个模型的推荐列表更加匹配你此刻的逛店意图和需求?", ["模型A", "模型B"])
+        model_choice_sup = st.selectbox("推荐新颖性：哪个模型的推荐列表让你感觉更加出乎意料?", ["模型A", "模型B"])
         rating_A = st.slider("给模型A给个主观评分，你会打几分?", 1, 5)
         rating_B = st.slider("给模型B给个主观评分，你会打几分?", 1, 5)
         recommendations_1 = []
         recommendations_2 = []
         recommendations_1 = st.selectbox(
-            "根据A模型要你选择下一个逛的店铺，你会选择：",
+            "根据模型 A推荐结果，选择你感兴趣访问的下一个店铺:",
             ["推荐结果1", "推荐结果2", "推荐结果3", "推荐结果4", "推荐结果5","无"]
         )
         recommendations_2 = st.selectbox(
-            "根据B模型要你选择下一个逛的店铺，你会选择：",
+            "根据模型 B推荐结果，选择你感兴趣访问的下一个店铺:",
             ["推荐结果1", "推荐结果2", "推荐结果3", "推荐结果4", "推荐结果5","无"]
         )
         feedback = st.text_area("请填写其他的建议或者评价(选填)：")
@@ -245,13 +291,13 @@ def render_rec_sidebar():
                     try:
                         engine = create_engine(DATABASE_URL)
                         with engine.connect() as conn:
-                            x = f"""INSERT INTO final (student_id, timeBegin, timeFinish, interests, purpose, selected_shops, model_choice_acc, model_choice_sup, rating_A, rating_B, recommendations_1, recommendations_2, feedback)
+                            x = f"""INSERT INTO final (student_id, timeBegin, timeFinish, interests, purpose, selected_shops, model_choice_acc, model_choice_sup, rating_A, rating_B, recommendations_1, recommendations_2, feedback, blind_seed)
                                 VALUES (
                                     {st.session_state.student_id},
                                     '{st.session_state.timeBegin}',
                                     '{st.session_state.timeFinish}',
                                     '{st.session_state.selected_category}',
-                                    '{st.session_state.purpose}',
+                                    '{', '.join(st.session_state.purpose)}',
                                     '{', '.join(st.session_state.selected_shops)}',
                                     '{model_choice_acc}',
                                     '{model_choice_sup}',
@@ -260,6 +306,7 @@ def render_rec_sidebar():
                                     '{recommendations_1}',
                                     '{recommendations_2}',
                                     '{feedback}'
+                                    '{st.session_state.random}',
                                 );"""
                             query = text(x)
                             result = conn.execute(query)  # 执行新建
@@ -276,61 +323,77 @@ def render_rec_sidebar():
              st.sidebar.success("恭喜你完成本次实验！")     
             
 
+def generate_markdown(i,idx):
+    for item in range(len(data)) :
+        if data["StoreName"][item] == idx:
+            store_markdown = f"{i}\t{data['StoreName'][item]}，{data['floor'][item]}{data['zoom'][item]}，{data['CategoryName'][item]}\n"
+            return store_markdown
+
 
 def render_result_page():
-    st.markdown(f"## 学号为{st.session_state.student_id}的同学，您留下的逛店信息如下：")# {st.session_state.student_id}
-    st.markdown(f"__逛店目标__：{st.session_state.purpose}")# {st.session_state.purpose}
+    st.markdown(f"## {st.session_state.nickname}同学，您留下的逛店信息如下：")# {st.session_state.nickname}
+    st.markdown(f"__逛店目标__："+"，".join(st.session_state.purpose)) # {st.session_state.purpose}
     st.markdown(f"__感兴趣的类目__：{st.session_state.selected_category}")# {st.session_state.selected_category}
-    st.markdown("__逛店轨迹__："+"-> ".join(st.session_state.selected_shops))# +"-> ".join(st.session_state.selected_shops)
+    st.markdown("__逛店序列__："+"-> ".join(st.session_state.selected_shops))# +"-> ".join(st.session_state.selected_shops)
     st.markdown("---")
     st.markdown("## 模型推荐对比")
     col1, col2 = st.columns([1, 1])
-    with col1:
-        st.markdown("### 模型A的推荐结果")
-        st.markdown("")
-        st.markdown("__1.推荐店铺1__")
-        st.markdown("__楼层__：1楼 __区域__：zoom1")
-        st.markdown("__品类信息__：服装服饰🧥")
-        st.markdown("")
-        st.markdown("__2.推荐店铺2__")
-        st.markdown("__楼层__：2楼 __区域__：zoom3")
-        st.markdown("__品类信息__：服装服饰🧥")
-        st.markdown("")
-        st.markdown("__3.推荐店铺3__")
-        st.markdown("__楼层__：2楼 __区域__：zoom3")
-        st.markdown("__品类信息__：服装服饰🧥")
-        st.markdown("")
-        st.markdown("__4.推荐店铺4__")
-        st.markdown("__楼层__：2楼 __区域__：zoom3")
-        st.markdown("__品类信息__：服装服饰🧥")
-        st.markdown("")
-        st.markdown("__4.推荐店铺5__")
-        st.markdown("__楼层__：2楼 __区域__：zoom3")
-        st.markdown("__品类信息__：服装服饰🧥")
-        st.markdown("")
-    with col2:
-        st.markdown("### 模型B的推荐结果")
-        st.markdown("")
-        st.markdown("__1.推荐店铺1__")
-        st.markdown("__楼层__：1楼 __区域__：zoom3")
-        st.markdown("__品类信息__：服装服饰🧥")
-        st.markdown("")
-        st.markdown("__2.推荐店铺2__")
-        st.markdown("__楼层__：2楼 __区域__：zoom3")
-        st.markdown("__品类信息__：服装服饰🧥")
-        st.markdown("")
-        st.markdown("__3.推荐店铺3__")
-        st.markdown("__楼层__：2楼 __区域__：zoom3")
-        st.markdown("__品类信息__：服装服饰🧥")
-        st.markdown("")
-        st.markdown("__4.推荐店铺4__")
-        st.markdown("__楼层__：2楼 __区域__：zoom3")
-        st.markdown("__品类信息__：服装服饰🧥")
-        st.markdown("")
-        st.markdown("__4.推荐店铺5__")
-        st.markdown("__楼层__：2楼 __区域__：zoom3")
-        st.markdown("__品类信息__：服装服饰🧥")
-        st.markdown("")
+    if st.session_state.random == 1:
+        with col1:
+            st.markdown("### 模型A的推荐结果")
+            #input_test =  ['Gant', 'GUESS', 'Armani Exchange', 'Evisu', 'G-STAR'] 
+            input_idx = trans.get_idxlist(st.session_state.selected_shops)
+            #input_idx = trans.get_idxlist(input_test)
+            output_idx = m.model_ddsm(input_idx)
+            output_store =trans.get_storelist(output_idx)
+            i = 1
+            st.markdown("")
+            for idx in output_store:
+                markdown = generate_markdown(i,idx)
+                i +=1 
+                st.markdown(markdown)
+
+        with col2:
+            st.markdown("### 模型B的推荐结果")
+            #input_test =  ['Gant', 'GUESS', 'Armani Exchange', 'Evisu', 'G-STAR'] 
+            input_idx = trans.get_idxlist(st.session_state.selected_shops)
+            #input_idx = trans.get_idxlist(input_test)
+            output_idx = m.model_ddsmds(input_idx)
+            output_store =trans.get_storelist(output_idx)
+            i = 1
+            st.markdown("")
+            for idx in output_store:
+                markdown = generate_markdown(i,idx)
+                i +=1 
+                st.markdown(markdown)
+    else: 
+        with col2:
+            st.markdown("### 模型A的推荐结果")
+            #input_test =  ['Gant', 'GUESS', 'Armani Exchange', 'Evisu', 'G-STAR'] 
+            input_idx = trans.get_idxlist(st.session_state.selected_shops)
+            #input_idx = trans.get_idxlist(input_test)
+            output_idx = m.model_ddsm(input_idx)
+            output_store =trans.get_storelist(output_idx)
+            i = 1
+            st.markdown("")
+            for idx in output_store:
+                markdown = generate_markdown(i,idx)
+                i +=1 
+                st.markdown(markdown)
+
+        with col1:
+            st.markdown("### 模型B的推荐结果")
+            #input_test =  ['Gant', 'GUESS', 'Armani Exchange', 'Evisu', 'G-STAR'] 
+            input_idx = trans.get_idxlist(st.session_state.selected_shops)
+            #input_idx = trans.get_idxlist(input_test)
+            output_idx = m.model_ddsmds(input_idx)
+            output_store =trans.get_storelist(output_idx)
+            i = 1
+            st.markdown("")
+            for idx in output_store:
+                markdown = generate_markdown(i,idx)
+                i +=1 
+                st.markdown(markdown)
 
 
 def render_rec_page():
@@ -340,8 +403,6 @@ def render_rec_page():
 
 ###########
 #定义全局框架
-    # 初始化或获取session_state中的页面状态
-
 if st.session_state.page == 'welcome':
     st.session_state.timeBegin = gettime()
     render_welcome_page()
