@@ -297,16 +297,16 @@ def render_rec_sidebar():
                                     '{st.session_state.timeBegin}',
                                     '{st.session_state.timeFinish}',
                                     '{st.session_state.selected_category}',
-                                    '{', '.join(st.session_state.purpose)}',
-                                    '{', '.join(st.session_state.selected_shops)}',
+                                    '{','.join(st.session_state.purpose)}',
+                                    '{','.join(st.session_state.selected_shops)}',
                                     '{model_choice_acc}',
                                     '{model_choice_sup}',
                                     {rating_A},
                                     {rating_B},
                                     '{recommendations_1}',
                                     '{recommendations_2}',
-                                    '{feedback}'
-                                    '{st.session_state.random}',
+                                    '{feedback}',
+                                    '{st.session_state.random}'
                                 );"""
                             query = text(x)
                             result = conn.execute(query)  # 执行新建
