@@ -65,7 +65,7 @@ def botton_c ():
     # if st.session_state.student_id == "" or st.session_state.nickname == "" or st.session_state.purpose== "":
     #     st.session_state.page = 'welcome'
     # else: st.session_state.page = 'shopping_page' 
-    if st.session_state.student_id == "" or st.session_state.nickname == "" or st.session_state.purpose== "":
+    if st.session_state.student_id == "" or st.session_state.nickname == "" or st.session_state.purpose== []:
         st.sidebar.error("请填写完整信息")
     else : st.session_state.page = 'shopping_page' 
 
