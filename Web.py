@@ -9,6 +9,7 @@ import plotly.express as px
 from sqlalchemy import create_engine, text
 import pymysql
 
+from sqlalchemy.exc import SQLAlchemyError
 import m 
 import trans
 import torch
@@ -159,6 +160,7 @@ def sidebarclick():
 
 
 def render_floor_sidebar2(): 
+    default_option_index = None
     st.session_state.selected_store = ''
     if "sidebar_input" not in st.session_state:
         st.session_state.sidebar_input = "1"
@@ -169,24 +171,24 @@ def render_floor_sidebar2():
         st.session_state.time_s = gettime()
         st.sidebar.markdown("请点击右侧平面图跳转至对应楼层进行浏览：")
         st.session_state.shop_list= data['StoreName'].unique().tolist()
-        st.session_state.selected_store=st.sidebar.selectbox("选择您第一个逛的商铺：",st.session_state.shop_list,key="select1")
-        st.session_state.site = st.sidebar.selectbox(f"请在右侧平面图中点击{st.session_state.selected_store}店铺，输入店铺位置信息，并填入进行验证",SiteID,key="check1")
+        st.session_state.selected_store=st.sidebar.selectbox("选择您第一个逛的商铺：",st.session_state.shop_list,default_option_index,key="select1")
+        st.session_state.site = st.sidebar.selectbox(f"请在右侧平面图中点击{st.session_state.selected_store}店铺，输入店铺位置信息，并填入进行验证",SiteID,default_option_index,key="check1")
         st.session_state.ture_site = data.loc[data['StoreName'] == st.session_state.selected_store, 'plaza_unitid'].squeeze()
         st.sidebar.button("选第二个", on_click=sidebarclick)
     if st.session_state.sidebar_input == "2":
         st.session_state.time_s = gettime()
         selected_info = "👌您选择的商铺是：" + "-> ".join(st.session_state.selected_shops)
         st.sidebar.markdown(selected_info)
-        st.session_state.selected_store=st.sidebar.selectbox(f"选择您第二个逛的商铺：",st.session_state.shop_list,key="select2")
-        st.session_state.site = st.sidebar.selectbox(f"请在右侧平面图中点击{st.session_state.selected_store}店铺，输入店铺位置信息，并填入进行验证",SiteID,key="check2")
+        st.session_state.selected_store=st.sidebar.selectbox(f"选择您第二个逛的商铺：",st.session_state.shop_list,default_option_index,key="select2")
+        st.session_state.site = st.sidebar.selectbox(f"请在右侧平面图中点击{st.session_state.selected_store}店铺，输入店铺位置信息，并填入进行验证",SiteID,default_option_index,key="check2")
         st.session_state.ture_site = data.loc[data['StoreName'] == st.session_state.selected_store, 'plaza_unitid'].squeeze()
         st.sidebar.button("选第三个", on_click=sidebarclick)
     if st.session_state.sidebar_input == "3":
         st.session_state.time_s = gettime()
         selected_info = "👌您选择的商铺是：" + "-> ".join(st.session_state.selected_shops)
         st.sidebar.markdown(selected_info)
-        st.session_state.selected_store=st.sidebar.selectbox(f"选择您第三个逛的商铺：",st.session_state.shop_list,key="select3")
-        st.session_state.site = st.sidebar.selectbox(f"请在右侧平面图中点击{st.session_state.selected_store}店铺，输入店铺位置信息，并填入进行验证",SiteID,key="check3")
+        st.session_state.selected_store=st.sidebar.selectbox(f"选择您第三个逛的商铺：",st.session_state.shop_list,default_option_index,key="select3")
+        st.session_state.site = st.sidebar.selectbox(f"请在右侧平面图中点击{st.session_state.selected_store}店铺，输入店铺位置信息，并填入进行验证",SiteID,default_option_index,key="check3")
         st.session_state.ture_site = data.loc[data['StoreName'] == st.session_state.selected_store, 'plaza_unitid'].squeeze()
         st.sidebar.button('我选好了，开始推荐！',on_click= go_to_page_rec)
         st.sidebar.button("选第四个", on_click=sidebarclick)
@@ -194,8 +196,8 @@ def render_floor_sidebar2():
         st.session_state.time_s = gettime()
         selected_info = "👌您选择的商铺是：" + "-> ".join(st.session_state.selected_shops)   
         st.sidebar.markdown(selected_info)
-        st.session_state.selected_store=st.sidebar.selectbox(f"请选择您第四个逛的商铺：",st.session_state.shop_list,key="select4")
-        st.session_state.site = st.sidebar.selectbox(f"请在右侧平面图中点击{st.session_state.selected_store}店铺，输入店铺位置信息，并填入进行验证",SiteID,key="check4")
+        st.session_state.selected_store=st.sidebar.selectbox(f"请选择您第四个逛的商铺：",st.session_state.shop_list,default_option_index,key="select4")
+        st.session_state.site = st.sidebar.selectbox(f"请在右侧平面图中点击{st.session_state.selected_store}店铺，输入店铺位置信息，并填入进行验证",SiteID,default_option_index,key="check4")
         st.session_state.ture_site = data.loc[data['StoreName'] == st.session_state.selected_store, 'plaza_unitid'].squeeze()
         st.sidebar.button('我选好了，开始推荐！',on_click= go_to_page_rec)
         st.sidebar.button("选第五个", on_click=sidebarclick)
@@ -203,8 +205,8 @@ def render_floor_sidebar2():
         st.session_state.time_s = gettime()
         selected_info = "👌您选择的商铺是：" + "-> ".join(st.session_state.selected_shops)   
         st.sidebar.markdown(selected_info)
-        st.session_state.selected_store=st.sidebar.selectbox(f"请选择您第五个逛的商铺：",st.session_state.shop_list,key="select5")
-        st.session_state.site = st.sidebar.selectbox(f"请在右侧平面图中点击{st.session_state.selected_store}店铺，输入店铺位置信息，并填入进行验证",SiteID,key="check5")
+        st.session_state.selected_store=st.sidebar.selectbox(f"请选择您第五个逛的商铺：",st.session_state.shop_list,default_option_index,key="select5")
+        st.session_state.site = st.sidebar.selectbox(f"请在右侧平面图中点击{st.session_state.selected_store}店铺，输入店铺位置信息，并填入进行验证",SiteID,default_option_index,key="check5")
         st.session_state.ture_site = data.loc[data['StoreName'] == st.session_state.selected_store, 'plaza_unitid'].squeeze()
         st.sidebar.button('我选好了，开始推荐！！',on_click= go_to_page_rec)     
 
@@ -218,7 +220,7 @@ def go_to_page_rec():
 
         
 def render_floor_page():
-    st.markdown("## 请沉浸浏览该商场交互平面图，感兴趣的逛店序列")
+    st.markdown("## 请沉浸浏览该商场交互平面图，输入感兴趣的逛店序列")
     st.write(f"👍点击查看具体的店铺信息~")
     st.write(f"🙌使用滚轮可以放大缩小平面图~")
     # 要嵌入的网址
@@ -289,34 +291,38 @@ def render_rec_sidebar():
                 #链接数据库并导入
                     st.session_state.timeFinish = gettime()
                     try:
-                        engine = create_engine(DATABASE_URL)
-                        with engine.connect() as conn:
-                            x = f"""INSERT INTO final (student_id, timeBegin, timeFinish, interests, purpose, selected_shops, model_choice_acc, model_choice_sup, rating_A, rating_B, recommendations_1, recommendations_2, feedback, blind_seed)
-                                VALUES (
-                                    {st.session_state.student_id},
-                                    '{st.session_state.timeBegin}',
-                                    '{st.session_state.timeFinish}',
-                                    '{st.session_state.selected_category}',
-                                    '{','.join(st.session_state.purpose)}',
-                                    '{','.join(st.session_state.selected_shops)}',
-                                    '{model_choice_acc}',
-                                    '{model_choice_sup}',
-                                    {rating_A},
-                                    {rating_B},
-                                    '{recommendations_1}',
-                                    '{recommendations_2}',
-                                    '{feedback}',
-                                    '{st.session_state.random}'
-                                );"""
-                            query = text(x)
-                            result = conn.execute(query)  # 执行新建
-                            if result:
-                                st.sidebar.success("数据库记录成功!")
-                            else:
-                                st.sidebar.error("未能检索数据，连接失败。")
-                    except Exception as e:
-                        st.sidebar.error(f"连接到数据库失败: {e}")
-                        st.sidebar.error(f"连接到数据库失败: {e}")
+                            # 创建数据库引擎
+                            engine = create_engine(DATABASE_URL)
+                            
+                            # 执行SQL插入操作
+                            with engine.connect() as conn:
+                                x = f"""INSERT INTO final (student_id, timeBegin, timeFinish, interests, purpose, selected_shops, model_choice_acc, model_choice_sup, rating_A, rating_B, recommendations_1, recommendations_2, feedback, blind_seed)
+                                    VALUES (
+                                        {st.session_state.student_id},
+                                        '{st.session_state.timeBegin}',
+                                        '{st.session_state.timeFinish}',
+                                        '{st.session_state.selected_category}',
+                                        '{','.join(st.session_state.purpose)}',
+                                        '{','.join(st.session_state.selected_shops)}',
+                                        '{model_choice_acc}',
+                                        '{model_choice_sup}',
+                                        {rating_A},
+                                        {rating_B},
+                                        '{recommendations_1}',
+                                        '{recommendations_2}',
+                                        '{feedback}',
+                                        '{st.session_state.random}'
+                                    );"""
+                                query = text(x)
+                                result = conn.execute(query)  # 执行插入
+                                if result:
+                                    conn.commit()  # 提交事务
+                                    st.sidebar.success("本次实验完成!")
+                                else:
+                                    st.sidebar.error("未能检索数据，连接失败。")
+                                
+                    except SQLAlchemyError as e:
+                            st.sidebar.error(f"连接到数据库失败: {e}")
                     button_clicked()
                             
         else:
