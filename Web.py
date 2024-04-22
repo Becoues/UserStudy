@@ -335,6 +335,7 @@ def render_result_page():
     st.markdown(f"__逛店目标__："+"，".join(st.session_state.purpose)) # {st.session_state.purpose}
     st.markdown(f"__感兴趣的类目__：{st.session_state.selected_category}")# {st.session_state.selected_category}
     st.markdown("__逛店序列__："+"-> ".join(st.session_state.selected_shops))# +"-> ".join(st.session_state.selected_shops)
+    st.markdown(f"__当前所在位置__：{ data.loc[data['StoreName'] == st.session_state.selected_store, 'floor'].squeeze()}{ data.loc[data['StoreName'] == st.session_state.selected_store, 'zoom'].squeeze()}")
     st.markdown("---")
     st.markdown("## 模型推荐对比")
     col1, col2 = st.columns([1, 1])
