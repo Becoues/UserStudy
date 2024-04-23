@@ -181,7 +181,6 @@ def render_floor_sidebar2():
     if "sidebar_input" not in st.session_state:
         st.session_state.sidebar_input = "1"
         st.session_state.selected_shops = []
-        st.session_state.selected_store = ''
         st.session_state.shop_list = []
         st.session_state.site = ''
         st.session_state.ture_site = ''
@@ -243,7 +242,7 @@ def render_floor_page():
     st.write(f"👍点击查看具体的店铺信息~")
     st.write(f"🙌使用滚轮可以放大缩小平面图~")
     # 要嵌入的网址
-    if st.session_state.selected_store == '':
+    if st.session_state.selected_store == None:
         src_url = "https://111.231.19.111:8080"
     else:
         src_url = f"https://111.231.19.111:8080/?storeIdx={data.loc[data['StoreName'] == st.session_state.selected_store,'idx_x'].squeeze()}"
