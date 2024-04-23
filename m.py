@@ -28,20 +28,20 @@ def main():
     while True:
         same_seeds(100)
         seq = [73, 37, 130, 23, 6]
-        rec_1 = model_1.recommend(seq)
-        rec_2 = model_2.recommend(seq)
+        rec_1 = model_1.recommend(seq,top_k=10)
+        rec_2 = model_2.recommend(seq,top_k=10)
         print('Method 1:', rec_1)
         print('Method 2:', rec_2)
         break
 
 def model_ddsm(seq):
     model = load_model('ddsm')
-    rec = model.recommend(seq)
+    rec = model.recommend(seq,top_k=10)
     return rec
 
 def model_ddsmds(seq):
     model = load_model('ddsm-ds')
-    rec = model.recommend(seq)
+    rec = model.recommend(seq,top_k=10)
     return rec
 
 

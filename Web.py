@@ -9,6 +9,7 @@ import plotly.express as px
 from sqlalchemy import create_engine, text
 import pymysql
 
+import json
 from sqlalchemy.exc import SQLAlchemyError
 import m 
 import trans
@@ -93,10 +94,10 @@ def rebder_welcom_botton():
             
 def render_welcome_main():
     col1, col2, col3 = st.columns([1,8,1]) # 调整比例以达到视觉上的居中
+    st.markdown("## 欢迎来到我们的商场推荐系统实验项目！💕")
     with col2: # 使用中间的列来显示图片
         image = Image.open("title.jpg")
         st.image(image, width=1000) # 动态调整图片宽度以适应列宽
-    st.markdown("## 欢迎来到我们的商场推荐系统实验项目！💕")
     st.write("""<span style="font-size:28px;font-weight:bold;">请尽量模拟您的真实逛店想法，</span>""", unsafe_allow_html=True)
     st.write("""<span style="font-size:28px;font-weight:bold;padding-left:60px;">     输入您的初始逛店序列，</span>""", unsafe_allow_html=True)
     st.write("""<span style="font-size:28px;font-weight:bold;padding-left:120px;">     以便为您推荐最佳逛店体验。</span>""", unsafe_allow_html=True)
@@ -107,22 +108,37 @@ def render_welcome_page():
             
 
 ##############################################   
+def display_cat_by_floor(query_dict, max_num=3):
+    lines = []
+    for floor, arr in query_dict.items():
+        tmp = (f'{floor}楼（{len(arr)}家）'.center(25, '='))
+        lines.append(f'__{tmp}__')
+        if len(arr) > max_num:
+            lines.append('、'.join(arr[:max_num]) + '……')
+        else:
+            lines.append('、'.join(arr))
+    return '  \n'.join(lines)
+
 
 def render_floor_sidebar():
     st.session_state.selected_category = st.sidebar.selectbox('可以选择对应品类查询所在楼层：',options=data['CategoryName'].unique())
-    filtered_data = data[data['CategoryName'] == st.session_state.selected_category]
-    category_count = filtered_data['floor'].value_counts().sort_index()
+    with open('cat_pop.json', 'r', encoding='utf-8') as f:
+        cat_pop = json.load(f)
+    st.sidebar.markdown(display_cat_by_floor(cat_pop[st.session_state.selected_category]))
+    # filtered_data = data[data['CategoryName'] == st.session_state.selected_category]
+    # category_count = filtered_data['floor'].value_counts().sort_index()
 
-    fig = px.pie(values=category_count.values, 
-                names=category_count.index.map(str), 
-                color_discrete_sequence=["#f58231", "#d495e0", "#ffd8b1", '#8475c5'],
-                title=f"{st.session_state.selected_category}各楼层分布")
-    fig.update_layout(margin=dict(t=40, b=0))
+    #饼图展示
+    # fig = px.pie(values=category_count.values, 
+    #             names=category_count.index.map(str), 
+    #             color_discrete_sequence=["#f58231", "#d495e0", "#ffd8b1", '#8475c5'],
+    #             title=f"{st.session_state.selected_category}各楼层分布")
+    # fig.update_layout(margin=dict(t=40, b=0))
     
     # 显示图表
-    fig.update_layout(width=400, height=200)
-    fig.update_traces(textinfo='label+value', textfont_size=14)
-    st.sidebar.plotly_chart(fig)
+    # fig.update_layout(width=400, height=200)
+    # fig.update_traces(textinfo='label+value', textfont_size=14)
+    # st.sidebar.plotly_chart(fig)
     # 设置自定义样式
     custom_style = """
     <style>
@@ -167,11 +183,14 @@ def render_floor_sidebar2():
         st.session_state.selected_shops = []
         st.session_state.selected_store = ''
         st.session_state.shop_list = []
+        st.session_state.site = ''
+        st.session_state.ture_site = ''
     if st.session_state.sidebar_input == "1":
         st.session_state.time_s = gettime()
         st.sidebar.markdown("请点击右侧平面图跳转至对应楼层进行浏览：")
         st.session_state.shop_list= data['StoreName'].unique().tolist()
         st.session_state.selected_store=st.sidebar.selectbox("选择您第一个逛的商铺：",st.session_state.shop_list,default_option_index,key="select1")
+        #st.sidebar.markdown(f"位置：{data.loc[data['StoreName'] == st.session_state.selected_store, 'floor'].squeeze()}{ data.loc[data['StoreName'] == st.session_state.selected_store, 'zoom'].squeeze()}")
         st.session_state.site = st.sidebar.selectbox(f"请在右侧平面图中点击{st.session_state.selected_store}店铺，输入店铺位置信息，并填入进行验证",SiteID,default_option_index,key="check1")
         st.session_state.ture_site = data.loc[data['StoreName'] == st.session_state.selected_store, 'plaza_unitid'].squeeze()
         st.sidebar.button("选第二个", on_click=sidebarclick)
@@ -274,11 +293,11 @@ def render_rec_sidebar():
         recommendations_2 = []
         recommendations_1 = st.selectbox(
             "根据模型 A推荐结果，选择你感兴趣访问的下一个店铺:",
-            ["推荐结果1", "推荐结果2", "推荐结果3", "推荐结果4", "推荐结果5","无"]
+            ["推荐结果1", "推荐结果2", "推荐结果3", "推荐结果4", "推荐结果5","推荐结果6", "推荐结果7", "推荐结果8", "推荐结果9", "推荐结果10","无"]
         )
         recommendations_2 = st.selectbox(
             "根据模型 B推荐结果，选择你感兴趣访问的下一个店铺:",
-            ["推荐结果1", "推荐结果2", "推荐结果3", "推荐结果4", "推荐结果5","无"]
+            ["推荐结果1", "推荐结果2", "推荐结果3", "推荐结果4", "推荐结果5","推荐结果6", "推荐结果7", "推荐结果8", "推荐结果9", "推荐结果10","无"]
         )
         feedback = st.text_area("请填写其他的建议或者评价(选填)：")
 
