@@ -93,8 +93,8 @@ def rebder_welcom_botton():
     
             
 def render_welcome_main():
-    col1, col2, col3 = st.columns([1,8,1]) # 调整比例以达到视觉上的居中
     st.markdown("## 欢迎来到我们的商场推荐系统实验项目！💕")
+    col1, col2, col3 = st.columns([1,8,1]) # 调整比例以达到视觉上的居中
     with col2: # 使用中间的列来显示图片
         image = Image.open("title.jpg")
         st.image(image, width=1000) # 动态调整图片宽度以适应列宽
