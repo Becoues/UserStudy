@@ -168,6 +168,7 @@ def sidebarclick():
 
     #位置检测
     if st.session_state.site == st.session_state.ture_site:
+        st.session_state.position = data.loc[data['StoreName'] == st.session_state.selected_store,'idx_x'].squeeze()
         st.session_state.selected_shops.append(st.session_state.selected_store)
         st.session_state.shop_list.remove(st.session_state.selected_store) 
         st.session_state.sidebar_input = str(int(st.session_state.sidebar_input)+1)
@@ -184,6 +185,7 @@ def render_floor_sidebar2():
         st.session_state.shop_list = []
         st.session_state.site = ''
         st.session_state.ture_site = ''
+        st.session_state.position = None
     if st.session_state.sidebar_input == "1":
         st.session_state.time_s = gettime()
         st.sidebar.markdown("请点击右侧平面图跳转至对应楼层进行浏览：")
@@ -242,10 +244,10 @@ def render_floor_page():
     st.write(f"👍点击查看具体的店铺信息~")
     st.write(f"🙌使用滚轮可以放大缩小平面图~")
     # 要嵌入的网址
-    if st.session_state.selected_store == None:
+    if st.session_state.position == None:
         src_url = "https://111.231.19.111:8080"
     else:
-        src_url = f"https://111.231.19.111:8080/?storeIdx={data.loc[data['StoreName'] == st.session_state.selected_store,'idx_x'].squeeze()}"
+        src_url = f"https://111.231.19.111:8080/?storeIdx={st.session_state.position}"
     #src_url = "http://localhost:8080"
     # 要显示的部分的尺寸和位置
     position = {"top": -112, "left": 0, "width": 1600, "height": 700}
