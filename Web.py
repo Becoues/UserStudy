@@ -109,22 +109,52 @@ def render_welcome_page():
 
 ##############################################   
 def display_cat_by_floor(query_dict, max_num=3):
-    lines = []
+    # lines = []
+    # for floor, arr in query_dict.items():
+    #     tmp = (f'{floor}楼（{len(arr)}家）'.center(25, '='))
+    #     lines.append(f'__{tmp}__')
+    #     if len(arr) > max_num:
+    #         lines.append('、'.join(arr[:max_num]) + '……')
+    #     else:
+    #         lines.append('、'.join(arr))
+    # return '  \n'.join(lines)
+    category_emoji_dict = {
+    "服装服饰": "👗",  # 表示服装或时尚
+    "生活精品": "🛍️",  # 表示购物或日常用品
+    "餐饮美食": "🍽️",  # 表示食物或餐饮
+    "大型零售": "🏬",  # 表示大型商场或零售商店
+    "儿童业态": "🧸",  # 表示儿童相关商品或活动
+    "体验业态": "🎨",  # 表示体验和活动，如艺术、手工等
+    "主题体验": "🎢",  # 表示乐园或特定主题体验
+    }
+    emoji = category_emoji_dict.get(st.session_state.selected_category)
     for floor, arr in query_dict.items():
-        tmp = (f'{floor}楼（{len(arr)}家）'.center(25, '='))
-        lines.append(f'__{tmp}__')
-        if len(arr) > max_num:
-            lines.append('、'.join(arr[:max_num]) + '……')
-        else:
-            lines.append('、'.join(arr))
-    return '  \n'.join(lines)
+        #title = f'{floor}楼({len(arr)}家)'
+        st.sidebar.write(
+            "<div style='border-top: 1px solid #ddd; border-bottom: 1px solid #ddd; "
+            f"text-align:center;'><b>{floor}楼</b>({len(arr)}家)</div>",
+            unsafe_allow_html=True)
+        for idx, store in enumerate(arr):
+            if idx >= max_num:
+                st.sidebar.write(f"""
+                <div style="line-height: 1.4;padding-left:75px;">
+                    ...
+                </div>
+                """, unsafe_allow_html=True)
+                break
+            st.sidebar.write(f"""
+        <div style="line-height: 1.3;padding-left:40px;">
+            {emoji}&nbsp{store}
+        </div>
+        """, unsafe_allow_html=True)
+    st.write("<div style='border-top: 1px solid #ddd;'></div>", unsafe_allow_html=True)
 
 
 def render_floor_sidebar():
     st.session_state.selected_category = st.sidebar.selectbox('可以选择对应品类查询所在楼层：',options=data['CategoryName'].unique())
     with open('cat_pop.json', 'r', encoding='utf-8') as f:
         cat_pop = json.load(f)
-    st.sidebar.markdown(display_cat_by_floor(cat_pop[st.session_state.selected_category]))
+    display_cat_by_floor(cat_pop[st.session_state.selected_category])
     # filtered_data = data[data['CategoryName'] == st.session_state.selected_category]
     # category_count = filtered_data['floor'].value_counts().sort_index()
 
