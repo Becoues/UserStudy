@@ -143,7 +143,7 @@ def display_cat_by_floor(query_dict, max_num=3):
                 """, unsafe_allow_html=True)
                 break
             st.sidebar.write(f"""
-        <div style="line-height: 1.3;padding-left:40px;">
+        <div style="line-height: 1.4;padding-left:40px;font-size:14px;">
             {emoji}&nbsp{store}
         </div>
         """, unsafe_allow_html=True)
@@ -151,7 +151,7 @@ def display_cat_by_floor(query_dict, max_num=3):
 
 
 def render_floor_sidebar():
-    st.session_state.selected_category = st.sidebar.selectbox('可以选择对应品类查询所在楼层：',options=data['CategoryName'].unique())
+    st.session_state.selected_category = st.sidebar.selectbox('根据品类查询楼层和店铺分布:',options=data['CategoryName'].unique())
     with open('cat_pop.json', 'r', encoding='utf-8') as f:
         cat_pop = json.load(f)
     display_cat_by_floor(cat_pop[st.session_state.selected_category])
