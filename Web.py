@@ -457,8 +457,10 @@ def render_rec_sidebar():
 def generate_markdown(i,idx):
     for item in range(len(data)) :
         if data["StoreName"][item] == idx:
-            store_markdown = f"{i}\t{data['StoreName'][item]}，{data['floor'][item]}{data['zoom'][item]}，{data['CategoryName'][item]}\n"
-            return store_markdown
+            #store_markdown = f"{i}\t __{data['StoreName'][item]}__，{data['floor'][item]}{data['zoom'][item]}，{data['CategoryName'][item]}\n"
+            store_markdown_1 = f'<span style="font-size:18px;">{i} __{data["StoreName"][item]}__  </span>'
+            store_markdown_2 = f'<span style="font-size:14px;">，{data["floor"][item]}{data["zoom"][item]}，{data["CategoryName"][item]}</span>'
+    return store_markdown_1 + store_markdown_2
 def generate_image(idx):
     for item in range(len(data)) :
         if data["StoreName"][item] == idx:
@@ -502,7 +504,7 @@ def render_result_page():
             for idx in output_store:
                 markdown = generate_markdown(i,idx)
                 i +=1 
-                st.markdown(markdown)
+                st.write(markdown,unsafe_allow_html=True)
                 store_image=generate_image(idx)
                 st.image(store_image, width=200)
                 if i == 6: break
@@ -511,7 +513,7 @@ def render_result_page():
                 for idx in output_store[5:10]:
                     markdown = generate_markdown(i,idx)
                     i +=1 
-                    st.markdown(markdown)
+                    st.write(markdown,unsafe_allow_html=True)
                     store_image=generate_image(idx)
                     st.image(store_image, width=200)
 
@@ -528,7 +530,7 @@ def render_result_page():
             for idx in output_store_1:
                 markdown_1 = generate_markdown(i,idx)
                 i +=1 
-                st.markdown(markdown_1)
+                st.write(markdown_1,unsafe_allow_html=True)
                 store_image=generate_image(idx)
                 st.image(store_image, width=200)
                 if i == 6: break
@@ -537,7 +539,7 @@ def render_result_page():
                 for idx in output_store_1[5:10]:
                     markdown_1 = generate_markdown(i,idx)
                     i +=1 
-                    st.markdown(markdown_1)
+                    st.write(markdown_1,unsafe_allow_html=True)
                     store_image=generate_image(idx)
                     st.image(store_image, width=200)
     else: 
@@ -553,7 +555,7 @@ def render_result_page():
             for idx in output_store_3:
                 markdown_3 = generate_markdown(i,idx)
                 i +=1 
-                st.markdown(markdown_3)    
+                st.write(markdown_3,unsafe_allow_html=True)
                 store_image=generate_image(idx)
                 st.image(store_image, width=200)            
                 if i == 6: break
@@ -563,7 +565,7 @@ def render_result_page():
                 for idx in output_store_3[5:10]:
                     markdown_3 = generate_markdown(i,idx)
                     i +=1 
-                    st.markdown(markdown_3)
+                    st.write(markdown_3,unsafe_allow_html=True)
                     store_image=generate_image(idx)
                     st.image(store_image, width=200)
 
@@ -579,7 +581,7 @@ def render_result_page():
             for idx in output_store_2:
                 markdown_2 = generate_markdown(i,idx)
                 i +=1 
-                st.markdown(markdown_2)    
+                st.write(markdown_2,unsafe_allow_html=True)
                 store_image=generate_image(idx)
                 st.image(store_image, width=200)            
                 if i == 6: break
@@ -588,7 +590,7 @@ def render_result_page():
                 for idx in output_store_2[5:10]:
                     markdown_2 = generate_markdown(i,idx)
                     i +=1 
-                    st.markdown(markdown_2)
+                    st.write(markdown_2,unsafe_allow_html=True)
                     store_image=generate_image(idx)
                     st.image(store_image, width=200)
 
