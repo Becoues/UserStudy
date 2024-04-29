@@ -240,7 +240,7 @@ class DDSM(nn.Module):
         self.w_arr_mean = torch.load(f'{save_path}w_arr_mean_{step}.pt').to(self.device)
 
     def recommend(
-            self, seq: List[int], top_k: int = 5, calculate_likelihood: bool = False
+            self, seq: List[int], top_k: int = 10, calculate_likelihood: bool = False
     ) -> tuple[list[Any], float] | list[Any]:
         """
         :param seq: 逛店轨迹的index，例如[42, 6, 12]

@@ -68,6 +68,3 @@ def model_get_likelihood(seq):
     rec, log_likelihood = model.recommend(seq, calculate_likelihood=True)
     return log_likelihood
 
-if "main" in __name__:
-    main()
-    print("Done!")
