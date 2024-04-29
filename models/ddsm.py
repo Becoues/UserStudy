@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Tuple, Any
 
 import numpy as np
 import pandas as pd
@@ -101,7 +101,7 @@ class DDSM(nn.Module):
         gate_weight = gate_weight * mask
         return gate_weight
 
-    def predict(self, seq, e_disc, e_cont):
+    def predict(self, seq, e_disc, e_cont, calculate_likelihood):
         seq = seq.astype(int)
         batch_size, max_length = seq.shape
         assert max_length > 0
@@ -146,8 +146,13 @@ class DDSM(nn.Module):
             # print('demand_probs:', demand_probs.isnan().sum().item())
             # print('demand_candidates_probs:', demand_candidates_probs.isnan().sum().item())
             # print('i_probs:', i_probs.isnan().sum().item())
+            if calculate_likelihood:
+                likelihood = store_probs.exp().sum(1)
         self.train()
-        return i_probs.cpu().numpy()
+        if calculate_likelihood:
+            return i_probs.cpu().numpy(), likelihood.cpu().numpy()
+        else:
+            return i_probs.cpu().numpy()
 
     def generate_demand(self, history, last=True):
         """
@@ -234,15 +239,27 @@ class DDSM(nn.Module):
         # self.w_arr_mean = (torch.load(f'{save_path}w_arr_{step}.pt') / self.tau).softmax(1).mean(0, True).to(self.device)
         self.w_arr_mean = torch.load(f'{save_path}w_arr_mean_{step}.pt').to(self.device)
 
-    def recommend(self, seq: List[int], top_k: int = 5) -> List[int]:
+    def recommend(
+            self, seq: List[int], top_k: int = 5, calculate_likelihood: bool = False
+    ) -> tuple[list[Any], float] | list[Any]:
         """
         :param seq: 逛店轨迹的index，例如[42, 6, 12]
         :param top_k: 推荐列表长度
+        :param calculate_likelihood: 是否计算似然
         :return: rec: 推荐列表的index，例如[9, 46, 2, 1, 54]
+        :return: likelihood: seq的似然函数
         """
-        i_probs = self.predict(np.array([seq]), None, None)[0][:STORE_NUM]  # 计算所有店铺的推荐概率
+        result = self.predict(np.array([seq]), None, None, calculate_likelihood)  # 计算所有店铺的推荐概率
+        if calculate_likelihood:
+            i_probs = result[0][0][:STORE_NUM]
+        else:
+            i_probs = result[0][:STORE_NUM]
         candidates = np.setdiff1d(range(STORE_NUM), seq).tolist()  # 候选集：目前选为未逛过的店铺
         candidate_score = i_probs[candidates]
         top_indices = candidate_score.argsort()[-top_k:][::-1]  # 取最大的top_k个索引，按概率降序排列
         rec = [candidates[idx] for idx in top_indices]
-        return rec
+        if calculate_likelihood:
+            likelihood = float(result[1][0])
+            return rec, np.log(likelihood)
+        else:
+            return rec

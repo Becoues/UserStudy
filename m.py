@@ -1,4 +1,8 @@
+from typing import List
+
+import numpy as np
 import torch
+
 from models.ddsm import DDSM
 from models.tools.utils import same_seeds, USE_CUDA
 
@@ -21,6 +25,16 @@ def load_model(file_name):
     return model
 
 
+def get_percentile(likelihood: float, seq_length: int) -> List[str]:
+    result = np.load('./data/log_likelihood_np.npy', allow_pickle=True).item()
+    percentile = (result[f'first-{seq_length}'] < likelihood).mean()
+    result = [
+        # 原始百分比（0～1）、(百分比) ** 0.5 * 10 （0～10）、百分比 * 100
+        percentile, np.sqrt(percentile) * 10, percentile * 100
+    ]
+    return [f'{item:.2f}' for item in result]
+
+
 def main():
     model_1 = load_model('ddsm')
     model_2 = load_model('ddsm-ds')
@@ -28,15 +42,20 @@ def main():
     while True:
         same_seeds(100)
         seq = [73, 37, 130, 23, 6]
-        rec_1 = model_1.recommend(seq,top_k=10)
-        rec_2 = model_2.recommend(seq,top_k=10)
+        # calculate_likelihood = True: 需要计算likelihood
+        rec_1, log_likelihood = model_1.recommend(seq, calculate_likelihood=True)
+        rec_2 = model_2.recommend(seq)
         print('Method 1:', rec_1)
         print('Method 2:', rec_2)
+        print(log_likelihood)
+        # TODO: 计算得分，你也可以考虑呈现方式？
+        percentile = get_percentile(log_likelihood, len(seq))  # ['0.92', '9.58', '91.84']
+        print(percentile)
         break
 
 def model_ddsm(seq):
     model = load_model('ddsm')
-    rec = model.recommend(seq,top_k=10)
+    rec = model.recommend(seq,top_k=10,calculate_likelihood=False)
     return rec
 
 def model_ddsmds(seq):
@@ -44,7 +63,11 @@ def model_ddsmds(seq):
     rec = model.recommend(seq,top_k=10)
     return rec
 
+def model_get_likelihood(seq):
+    model = load_model('ddsm')
+    rec, log_likelihood = model.recommend(seq, calculate_likelihood=True)
+    return log_likelihood
 
-
-if __name__ == '__main__':
+if "main" in __name__:
     main()
+    print("Done!")
