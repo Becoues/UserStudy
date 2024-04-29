@@ -4,9 +4,9 @@ import numpy as np
 import pandas as pd
 import torch
 import torch.nn as nn
-
+from typing import List, Any, Tuple, Union
 from models.tools.utils import TINY_NUM, positive_func, STORE_NUM, USE_CUDA
-
+from typing import Any, List, Union, Tuple
 
 class DDSM(nn.Module):
     def __init__(self, group_num, demand_num, embed_dim, mc_type, func_type, rnn_params,
@@ -240,8 +240,9 @@ class DDSM(nn.Module):
         self.w_arr_mean = torch.load(f'{save_path}w_arr_mean_{step}.pt').to(self.device)
 
     def recommend(
-            self, seq: List[int], top_k: int = 10, calculate_likelihood: bool = False
-    ) -> tuple[list[Any], float] | list[Any]:
+            self, seq: List[int], top_k: int = 5, calculate_likelihood: bool = False
+    ) -> Union[Tuple[List[Any], float], List[Any]]:
+        #-> tuple[list[Any], float] | list[Any]:
         """
         :param seq: 逛店轨迹的index，例如[42, 6, 12]
         :param top_k: 推荐列表长度
