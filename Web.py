@@ -72,7 +72,6 @@ category_mapping = {
     '买护肤品':1,
     '吃饭聚餐':2,
     '喝奶茶':2,
-    '逛超市':3,
     '买玩具':4,
     '做美甲':5,
     '玩电玩':6,
@@ -82,10 +81,9 @@ def botton_c ():
     # if st.session_state.student_id == "" or st.session_state.nickname == "" or st.session_state.purpose== "":
     #     st.session_state.page = 'welcome'
     # else: st.session_state.page = 'shopping_page' 
-    if st.session_state.student_id == "" or st.session_state.nickname == "" or st.session_state.purpose== []:
+    if st.session_state.student_id == "" or st.session_state.nickname == "" :
         st.sidebar.error("请填写完整信息")
     else : 
-        st.session_state.cat = category_mapping[st.session_state.purpose[0]]
         st.session_state.timeBegin_2 = gettime()
         st.session_state.page = 'shopping_page' 
 
@@ -93,16 +91,16 @@ def botton_c ():
 
 def render_welcome_sidebar():
 
-    categories =list(category_mapping.keys())
+    
 
     with st.sidebar:
         st.markdown("## 请在下方填写对应信息并提交：😊")
         st.session_state.student_id = ""
         st.session_state.nickname = ""
-        st.session_state.purpose = []
+        st.session_state.purpose = [0]
         st.session_state.student_id = st.text_input("学号:",placeholder="2023214419")
         st.session_state.nickname = st.text_input("昵称:",placeholder="我们可以怎么称呼你呢")
-        st.session_state.purpose = st.multiselect("你可以预想一下你逛商场的目的:", categories)
+        
         
         
 
@@ -173,6 +171,12 @@ def display_cat_by_floor(query_dict, max_num=3):
 
 
 def render_floor_sidebar():
+    categories =list(category_mapping.keys())
+    st.session_state.purpose = st.sidebar.multiselect("你可以预想一下你逛商场的目的:", categories)
+    try:
+        st.session_state.cat = category_mapping[st.session_state.purpose[-1]]
+    except:
+        st.session_state.cat = 0
     st.session_state.selected_category = st.sidebar.selectbox('根据品类查询楼层和top3店铺分布:',options=data['CategoryName'].unique(),index=st.session_state.cat,key="select0")
     with open('cat_pop.json', 'r', encoding='utf-8') as f:
         cat_pop = json.load(f)
@@ -227,8 +231,10 @@ def sidebarclick():
             st.session_state.selected_shops.append(st.session_state.selected_store)
             st.session_state.shop_list.remove(st.session_state.selected_store)
             st.session_state.timechoice.append(str(gettime())) 
+            st.session_state.erro = False
             st.session_state.sidebar_input = str(int(st.session_state.sidebar_input)+1)
-        else : st.sidebar.error('位置与店铺不匹配，请重新填写')
+        else : st.session_state.erro = True
+            
 
 
 
@@ -236,6 +242,7 @@ def render_floor_sidebar2():
     default_option_index = None
     st.session_state.selected_store = ''
     if "sidebar_input" not in st.session_state:
+        st.session_state.erro = False
         st.session_state.timechoice = []
         st.session_state.sidebar_input = "1"
         st.session_state.selected_shops = []
@@ -254,6 +261,9 @@ def render_floor_sidebar2():
         else:
             st.session_state.site = st.sidebar.selectbox(f"请在右侧平面图中点击{st.session_state.selected_store}店铺，输入店铺位置信息，并填入进行验证",SiteID,default_option_index,key="check1")
         st.session_state.ture_site = data.loc[data['StoreName'] == st.session_state.selected_store, 'plaza_unitid'].squeeze()
+        if st.session_state.erro:
+            st.sidebar.error('位置与店铺不匹配，请重新填写')
+            st.session_state.erro = False
         st.sidebar.button("选第二个", on_click=sidebarclick)
     if st.session_state.sidebar_input == "2":
         st.session_state.time_s = gettime()
@@ -266,6 +276,9 @@ def render_floor_sidebar2():
             st.session_state.site = st.sidebar.selectbox(f"请在右侧平面图中点击{st.session_state.selected_store}店铺，输入店铺位置信息，并填入进行验证",SiteID,default_option_index,key="check2")
         #st.session_state.site = st.sidebar.selectbox(f"请在右侧平面图中点击{st.session_state.selected_store}店铺，输入店铺位置信息，并填入进行验证",SiteID,default_option_index,key="check2")
         st.session_state.ture_site = data.loc[data['StoreName'] == st.session_state.selected_store, 'plaza_unitid'].squeeze()
+        if st.session_state.erro:
+            st.sidebar.error('位置与店铺不匹配，请重新填写')
+            st.session_state.erro = False
         st.sidebar.button("选第三个", on_click=sidebarclick)
     if st.session_state.sidebar_input == "3":
         st.session_state.time_s = gettime()
@@ -278,6 +291,9 @@ def render_floor_sidebar2():
             st.session_state.site = st.sidebar.selectbox(f"请在右侧平面图中点击{st.session_state.selected_store}店铺，输入店铺位置信息，并填入进行验证",SiteID,default_option_index,key="check3")
         #st.session_state.site = st.sidebar.selectbox(f"请在右侧平面图中点击{st.session_state.selected_store}店铺，输入店铺位置信息，并填入进行验证",SiteID,default_option_index,key="check3")
         st.session_state.ture_site = data.loc[data['StoreName'] == st.session_state.selected_store, 'plaza_unitid'].squeeze()
+        if st.session_state.erro:
+            st.sidebar.error('位置与店铺不匹配，请重新填写')
+            st.session_state.erro = False
         st.sidebar.button('我选好了，开始推荐！',on_click= go_to_page_rec)
         st.sidebar.button("选第四个", on_click=sidebarclick)
     if st.session_state.sidebar_input == "4":
@@ -291,6 +307,9 @@ def render_floor_sidebar2():
             st.session_state.site = st.sidebar.selectbox(f"请在右侧平面图中点击{st.session_state.selected_store}店铺，输入店铺位置信息，并填入进行验证",SiteID,default_option_index,key="check4")
         #st.session_state.site = st.sidebar.selectbox(f"请在右侧平面图中点击{st.session_state.selected_store}店铺，输入店铺位置信息，并填入进行验证",SiteID,default_option_index,key="check4")
         st.session_state.ture_site = data.loc[data['StoreName'] == st.session_state.selected_store, 'plaza_unitid'].squeeze()
+        if st.session_state.erro:
+            st.sidebar.error('位置与店铺不匹配，请重新填写')
+            st.session_state.erro = False
         st.sidebar.button('我选好了，开始推荐！',on_click= go_to_page_rec)
         st.sidebar.button("选第五个", on_click=sidebarclick)
     if st.session_state.sidebar_input == "5":
@@ -304,6 +323,9 @@ def render_floor_sidebar2():
             st.session_state.site = st.sidebar.selectbox(f"请在右侧平面图中点击{st.session_state.selected_store}店铺，输入店铺位置信息，并填入进行验证",SiteID,default_option_index,key="check5")
         #st.session_state.site = st.sidebar.selectbox(f"请在右侧平面图中点击{st.session_state.selected_store}店铺，输入店铺位置信息，并填入进行验证",SiteID,default_option_index,key="check5")
         st.session_state.ture_site = data.loc[data['StoreName'] == st.session_state.selected_store, 'plaza_unitid'].squeeze()
+        if st.session_state.erro:
+            st.sidebar.error('位置与店铺不匹配，请重新填写')
+            st.session_state.erro = False
         st.sidebar.button('我选好了，开始推荐！！',on_click= go_to_page_rec)     
 
 
@@ -315,7 +337,7 @@ def go_to_page_rec():
             st.session_state.selected_shops.append(st.session_state.selected_store)
             st.session_state.timeBegin_3 = gettime()
             st.session_state.page = 'rec_page'
-        else : st.sidebar.error('位置与店铺不匹配，请重新填写')
+        else : st.session_state.erro = True
 
 
         
