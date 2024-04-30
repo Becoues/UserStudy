@@ -351,6 +351,7 @@ def go_to_page_rec():
         st.session_state.erro2 = True
     else:
         if st.session_state.site == st.session_state.ture_site:
+            st.session_state.position = data.loc[data['StoreName'] == st.session_state.selected_store,'idx_x'].squeeze()
             st.session_state.selected_shops.append(st.session_state.selected_store)
             st.session_state.timeBegin_3 = gettime()
             st.session_state.page = 'rec_page'
