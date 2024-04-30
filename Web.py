@@ -224,7 +224,7 @@ def sidebarclick():
 
     #位置检测
     if st.session_state.selected_store == None or st.session_state.selected_store == '' or st.session_state.site== None or st.session_state.site=='':
-        st.sidebar.error('请填写完整信息')
+        st.session_state.erro2 = True
     else:
         if st.session_state.site == st.session_state.ture_site:
             st.session_state.position = data.loc[data['StoreName'] == st.session_state.selected_store,'idx_x'].squeeze()
@@ -232,6 +232,7 @@ def sidebarclick():
             st.session_state.shop_list.remove(st.session_state.selected_store)
             st.session_state.timechoice.append(str(gettime())) 
             st.session_state.erro = False
+            st.session_state.erro2 = False
             st.session_state.sidebar_input = str(int(st.session_state.sidebar_input)+1)
         else : st.session_state.erro = True
             
@@ -243,6 +244,7 @@ def render_floor_sidebar2():
     st.session_state.selected_store = ''
     if "sidebar_input" not in st.session_state:
         st.session_state.erro = False
+        st.session_state.erro2 = False
         st.session_state.timechoice = []
         st.session_state.sidebar_input = "1"
         st.session_state.selected_shops = []
@@ -264,6 +266,9 @@ def render_floor_sidebar2():
         if st.session_state.erro:
             st.sidebar.error('位置与店铺不匹配，请重新填写')
             st.session_state.erro = False
+        if st.session_state.erro2:
+            st.sidebar.error('请填写完整信息')
+            st.session_state.erro2 = False
         st.sidebar.button("选第二个", on_click=sidebarclick)
     if st.session_state.sidebar_input == "2":
         st.session_state.time_s = gettime()
@@ -279,6 +284,9 @@ def render_floor_sidebar2():
         if st.session_state.erro:
             st.sidebar.error('位置与店铺不匹配，请重新填写')
             st.session_state.erro = False
+        if st.session_state.erro2:
+            st.sidebar.error('请填写完整信息')
+            st.session_state.erro2 = False
         st.sidebar.button("选第三个", on_click=sidebarclick)
     if st.session_state.sidebar_input == "3":
         st.session_state.time_s = gettime()
@@ -294,6 +302,9 @@ def render_floor_sidebar2():
         if st.session_state.erro:
             st.sidebar.error('位置与店铺不匹配，请重新填写')
             st.session_state.erro = False
+        if st.session_state.erro2:
+            st.sidebar.error('请填写完整信息')
+            st.session_state.erro2 = False
         st.sidebar.button('我选好了，开始推荐！',on_click= go_to_page_rec)
         st.sidebar.button("选第四个", on_click=sidebarclick)
     if st.session_state.sidebar_input == "4":
@@ -310,6 +321,9 @@ def render_floor_sidebar2():
         if st.session_state.erro:
             st.sidebar.error('位置与店铺不匹配，请重新填写')
             st.session_state.erro = False
+        if st.session_state.erro2:
+            st.sidebar.error('请填写完整信息')
+            st.session_state.erro2 = False
         st.sidebar.button('我选好了，开始推荐！',on_click= go_to_page_rec)
         st.sidebar.button("选第五个", on_click=sidebarclick)
     if st.session_state.sidebar_input == "5":
@@ -326,12 +340,15 @@ def render_floor_sidebar2():
         if st.session_state.erro:
             st.sidebar.error('位置与店铺不匹配，请重新填写')
             st.session_state.erro = False
+        if st.session_state.erro2:
+            st.sidebar.error('请填写完整信息')
+            st.session_state.erro2 = False
         st.sidebar.button('我选好了，开始推荐！！',on_click= go_to_page_rec)     
 
 
 def go_to_page_rec():
     if st.session_state.selected_store == None or st.session_state.selected_store == '' or st.session_state.site== None or st.session_state.site=='':
-        st.sidebar.error('请填写完整信息')
+        st.session_state.erro2 = True
     else:
         if st.session_state.site == st.session_state.ture_site:
             st.session_state.selected_shops.append(st.session_state.selected_store)
