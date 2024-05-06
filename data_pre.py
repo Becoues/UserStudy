@@ -1,9 +1,10 @@
 import pandas as pd
 
-file_path = "store_map.csv"
+file_path = "store_map-v2.csv"
 data = pd.read_csv(file_path)
+
 data['floor'] = data['NodeID'].str.split('-').str[0].replace({'1S': '一楼', '2S': '二楼', '3S': '三楼', '4S': '四楼'})
-new_data = data[:][['NodeID','StoreName', 'floor', 'CategoryName', 'idx']]
+new_data = data[:][['NodeID','StoreName', 'floor', 'new_category', 'idx',"PlazaUnitID"]]
 
 
 # file_path2 = "store.csv"
@@ -50,8 +51,8 @@ new_data = pd.merge(new_data, idx_to_zoom_df, left_index=True, right_on='idx')
 new_data['zoom'] = new_data['zoom'].str[1].replace({'S': '北区', 'N': '南区'})
 new_file_path = "data.csv"
 new_data.to_csv(new_file_path, index=False)
-SiteID = new_data['plaza_unitid'].unique()
-Category = new_data['CategoryName'].unique()
+SiteID = new_data['PlazaUnitID'].unique()
+Category = new_data['new_category'].unique()
 
 
 

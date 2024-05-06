@@ -64,19 +64,21 @@ floor_images = {
 
 ####################################################
 category_mapping = {
-    '买衣服': 0,
-    '买鞋': 0,
-    '买饰品': 0,
-    '买手机':1,
-    '买文创产品':1,
-    '买护肤品':1,
-    '吃饭聚餐':2,
-    '喝奶茶':2,
-    '买玩具':4,
-    '做美甲':5,
-    '玩电玩':6,
-    '健身':6,
-    }
+    "配饰珠宝": 0,  # 0表示配饰及珠宝
+    "运动休闲": 1,  # 1表示与运动和休闲相关的
+    "杂品集合": 2,  # 2表示各类杂项商品集合
+    "男装": 3,  # 3表示男性服装
+    "潮流时尚": 4,  # 4表示潮流和时尚类目
+    "家居家用": 5,  # 5表示家居及家用商品
+    "女装": 6,  # 6表示女性服装
+    "休闲快餐与饮品": 7,  # 7表示休闲快餐和饮品
+    "数码电子": 8,  # 8表示数码产品和电子设备
+    "美妆护肤": 9,  # 9表示美妆和护肤产品
+    "鞋品箱包": 10,  # 10表示鞋类和箱包
+    "亲子": 11,  # 11表示亲子相关的商品或活动
+    "体验业态": 12,  # 12表示体验和活动，如艺术、手工等
+    "餐饮美食": 13,  # 13表示餐饮美食
+}
 def botton_c ():
     # if st.session_state.student_id == "" or st.session_state.nickname == "" or st.session_state.purpose== "":
     #     st.session_state.page = 'welcome'
@@ -98,8 +100,8 @@ def render_welcome_sidebar():
         st.session_state.student_id = ""
         st.session_state.nickname = ""
         st.session_state.purpose = [0]
-        st.session_state.student_id = st.text_input("学号:",placeholder="2023214419")
-        st.session_state.nickname = st.text_input("昵称:",placeholder="我们可以怎么称呼你呢")
+        st.session_state.student_id = st.text_input("学号:",placeholder="请输入您的学号")
+        st.session_state.nickname = st.text_input("昵称:",placeholder="我们可以怎么称呼您呢")
         
         
         
@@ -114,13 +116,13 @@ def rebder_welcom_botton():
             
 def render_welcome_main():
     st.markdown("## 欢迎来到我们的商场推荐系统实验项目！💕")
-    col1, col2, col3 = st.columns([1,8,1]) # 调整比例以达到视觉上的居中
-    with col2: # 使用中间的列来显示图片
-        image = Image.open("title.jpg")
-        st.image(image, width=1000) # 动态调整图片宽度以适应列宽
-    st.write("""<span style="font-size:28px;font-weight:bold;">请尽量模拟您的真实逛店想法，</span>""", unsafe_allow_html=True)
-    st.write("""<span style="font-size:28px;font-weight:bold;padding-left:60px;">     输入您的初始逛店序列，</span>""", unsafe_allow_html=True)
-    st.write("""<span style="font-size:28px;font-weight:bold;padding-left:120px;">     以便为您推荐最佳逛店体验。</span>""", unsafe_allow_html=True)
+    #col1, col2, col3 = st.columns([1,8,1]) # 调整比例以达到视觉上的居中
+    #with col2: # 使用中间的列来显示图片
+    image = Image.open("title.jpg")
+    st.image(image, width=1000) # 动态调整图片宽度以适应列宽
+    st.write("""<span style="font-size:28px;font-weight:bold;">请尽量模拟您的真实逛店想法，输入您的初始逛店序列，以便为您推荐最佳逛店体验。</span>""", unsafe_allow_html=True)
+    #st.write("""<span style="font-size:28px;font-weight:bold;padding-left:60px;">     输入您的初始逛店序列，</span>""", unsafe_allow_html=True)
+    #st.write("""<span style="font-size:28px;font-weight:bold;padding-left:120px;">     以便为您推荐最佳逛店体验。</span>""", unsafe_allow_html=True)
 def render_welcome_page():
     render_welcome_sidebar()
     rebder_welcom_botton()
@@ -139,14 +141,21 @@ def display_cat_by_floor(query_dict, max_num=3):
     #         lines.append('、'.join(arr))
     # return '  \n'.join(lines)
     category_emoji_dict = {
-    "服装服饰": "👗",  # 表示服装或时尚
-    "生活精品": "🛍️",  # 表示购物或日常用品
-    "餐饮美食": "🍽️",  # 表示食物或餐饮
-    "大型零售": "🏬",  # 表示大型商场或零售商店
-    "儿童业态": "🧸",  # 表示儿童相关商品或活动
+    "配饰珠宝": "💍",  # 表示配饰及珠宝
+    "运动休闲": "🏃‍♂️",  # 表示与运动和休闲相关的
+    "杂品集合": "🧺",  # 表示各类杂项商品集合
+    "男装": "👔",  # 表示男性服装
+    "潮流时尚": "🕶",  # 表示潮流和时尚类目
+    "家居家用": "🏡",  # 表示家居及家用商品
+    "女装": "👗",  # 表示女性服装
+    "休闲快餐与饮品": "🍔",  # 表示休闲快餐和饮品
+    "数码电子": "📱",  # 表示数码产品和电子设备
+    "美妆护肤": "💄",  # 表示美妆和护肤产品
+    "鞋品箱包": "👠👜",  # 表示鞋类和箱包
+    "亲子": "👨‍👩‍👦",  # 表示亲子相关的商品或活动
     "体验业态": "🎨",  # 表示体验和活动，如艺术、手工等
-    "主题体验": "🎢",  # 表示乐园或特定主题体验
-    }
+    "餐饮美食": "🍽️",  # 表示食物或餐饮
+}
     emoji = category_emoji_dict.get(st.session_state.selected_category)
     for floor, arr in query_dict.items():
         #title = f'{floor}楼({len(arr)}家)'
@@ -177,11 +186,11 @@ def render_floor_sidebar():
         st.session_state.cat = category_mapping[st.session_state.purpose[-1]]
     except:
         st.session_state.cat = 0
-    st.session_state.selected_category = st.sidebar.selectbox('根据品类查询楼层和top3店铺分布:',options=data['CategoryName'].unique(),index=st.session_state.cat,key="select0")
+    st.session_state.selected_category = st.sidebar.selectbox('根据品类查询楼层和top3店铺分布:',options=data['new_category'].unique(),index=st.session_state.cat,key="select0")
     with open('cat_pop.json', 'r', encoding='utf-8') as f:
         cat_pop = json.load(f)
     display_cat_by_floor(cat_pop[st.session_state.selected_category])
-    # filtered_data = data[data['CategoryName'] == st.session_state.selected_category]
+    # filtered_data = data[data['new_category'] == st.session_state.selected_category]
     # category_count = filtered_data['floor'].value_counts().sort_index()
 
     #饼图展示
@@ -262,7 +271,7 @@ def render_floor_sidebar2():
             st.session_state.site = st.sidebar.selectbox(f"请在右侧平面图中点击该店铺，输入店铺位置信息，并填入进行验证",SiteID,default_option_index,key="check1")
         else:
             st.session_state.site = st.sidebar.selectbox(f"请在右侧平面图中点击{st.session_state.selected_store}店铺，输入店铺位置信息，并填入进行验证",SiteID,default_option_index,key="check1")
-        st.session_state.ture_site = data.loc[data['StoreName'] == st.session_state.selected_store, 'plaza_unitid'].squeeze()
+        st.session_state.ture_site = data.loc[data['StoreName'] == st.session_state.selected_store, 'PlazaUnitID'].squeeze()
         if st.session_state.erro:
             st.sidebar.error('位置与店铺不匹配，请重新填写')
             st.session_state.erro = False
@@ -280,7 +289,7 @@ def render_floor_sidebar2():
         else:
             st.session_state.site = st.sidebar.selectbox(f"请在右侧平面图中点击{st.session_state.selected_store}店铺，输入店铺位置信息，并填入进行验证",SiteID,default_option_index,key="check2")
         #st.session_state.site = st.sidebar.selectbox(f"请在右侧平面图中点击{st.session_state.selected_store}店铺，输入店铺位置信息，并填入进行验证",SiteID,default_option_index,key="check2")
-        st.session_state.ture_site = data.loc[data['StoreName'] == st.session_state.selected_store, 'plaza_unitid'].squeeze()
+        st.session_state.ture_site = data.loc[data['StoreName'] == st.session_state.selected_store, 'PlazaUnitID'].squeeze()
         if st.session_state.erro:
             st.sidebar.error('位置与店铺不匹配，请重新填写')
             st.session_state.erro = False
@@ -298,7 +307,7 @@ def render_floor_sidebar2():
         else:
             st.session_state.site = st.sidebar.selectbox(f"请在右侧平面图中点击{st.session_state.selected_store}店铺，输入店铺位置信息，并填入进行验证",SiteID,default_option_index,key="check3")
         #st.session_state.site = st.sidebar.selectbox(f"请在右侧平面图中点击{st.session_state.selected_store}店铺，输入店铺位置信息，并填入进行验证",SiteID,default_option_index,key="check3")
-        st.session_state.ture_site = data.loc[data['StoreName'] == st.session_state.selected_store, 'plaza_unitid'].squeeze()
+        st.session_state.ture_site = data.loc[data['StoreName'] == st.session_state.selected_store, 'PlazaUnitID'].squeeze()
         if st.session_state.erro:
             st.sidebar.error('位置与店铺不匹配，请重新填写')
             st.session_state.erro = False
@@ -317,7 +326,7 @@ def render_floor_sidebar2():
         else:
             st.session_state.site = st.sidebar.selectbox(f"请在右侧平面图中点击{st.session_state.selected_store}店铺，输入店铺位置信息，并填入进行验证",SiteID,default_option_index,key="check4")
         #st.session_state.site = st.sidebar.selectbox(f"请在右侧平面图中点击{st.session_state.selected_store}店铺，输入店铺位置信息，并填入进行验证",SiteID,default_option_index,key="check4")
-        st.session_state.ture_site = data.loc[data['StoreName'] == st.session_state.selected_store, 'plaza_unitid'].squeeze()
+        st.session_state.ture_site = data.loc[data['StoreName'] == st.session_state.selected_store, 'PlazaUnitID'].squeeze()
         if st.session_state.erro:
             st.sidebar.error('位置与店铺不匹配，请重新填写')
             st.session_state.erro = False
@@ -336,7 +345,7 @@ def render_floor_sidebar2():
         else:
             st.session_state.site = st.sidebar.selectbox(f"请在右侧平面图中点击{st.session_state.selected_store}店铺，输入店铺位置信息，并填入进行验证",SiteID,default_option_index,key="check5")
         #st.session_state.site = st.sidebar.selectbox(f"请在右侧平面图中点击{st.session_state.selected_store}店铺，输入店铺位置信息，并填入进行验证",SiteID,default_option_index,key="check5")
-        st.session_state.ture_site = data.loc[data['StoreName'] == st.session_state.selected_store, 'plaza_unitid'].squeeze()
+        st.session_state.ture_site = data.loc[data['StoreName'] == st.session_state.selected_store, 'PlazaUnitID'].squeeze()
         if st.session_state.erro:
             st.sidebar.error('位置与店铺不匹配，请重新填写')
             st.session_state.erro = False
@@ -497,9 +506,9 @@ def render_rec_sidebar():
 def generate_markdown(i,idx):
     for item in range(len(data)) :
         if data["StoreName"][item] == idx:
-            #store_markdown = f"{i}\t __{data['StoreName'][item]}__，{data['floor'][item]}{data['zoom'][item]}，{data['CategoryName'][item]}\n"
-            store_markdown_1 = f'<span style="font-size:18px;">{i} __{data["StoreName"][item]}__  </span>'
-            store_markdown_2 = f'<span style="font-size:14px;">，{data["floor"][item]}{data["zoom"][item]}，{data["CategoryName"][item]}</span>'
+            #store_markdown = f"{i}\t __{data['StoreName'][item]}__，{data['floor'][item]}{data['zoom'][item]}，{data['new_category'][item]}\n"
+            store_markdown_1 = f'<span style="display: inline-block;font-size:18px;margin-top: 10px; margin-bottom: -10px;">{i} __{data["StoreName"][item]}__  </span>'
+            store_markdown_2 = f'<span style="display: inline-block;font-size:14px;margin-top: 10px; margin-bottom: -10px;">，{data["floor"][item]}，{data["new_category"][item]}</span>'
     return store_markdown_1 + store_markdown_2
 def generate_image(idx):
     for item in range(len(data)) :
@@ -525,7 +534,7 @@ def render_result_page():
     st.session_state.percentile = m.get_percentile(st.session_state.likelihood, len(input_idx_0)) 
     st.markdown(f"测试内容：路径打分：likelihood打分：{st.session_state.likelihood:.3f}")
     st.markdown(f"分位数打分在三种scale下的打分："+",".join(st.session_state.percentile))
-    st.markdown(f"__当前所在位置__：{ data.loc[data['StoreName'] == st.session_state.selected_store, 'floor'].squeeze()}{ data.loc[data['StoreName'] == st.session_state.selected_store, 'zoom'].squeeze()}")
+    st.markdown(f"__当前所在位置__：{ data.loc[data['StoreName'] == st.session_state.selected_store, 'floor'].squeeze()}")
     src_url2 = f"https://111.231.19.111:8080/?storeIdx={st.session_state.position}"
     st.markdown(f'<a href="{src_url2}" target="_blank">点击查看地图</a>', unsafe_allow_html=True)
     #st.button("显示地图",on_click=go_to_map)
