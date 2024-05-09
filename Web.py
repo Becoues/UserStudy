@@ -423,6 +423,7 @@ def render_shopping_page():
 ##############################################
 if 'button_clicked' not in st.session_state:
     st.session_state.button_clicked = False
+    st.session_state.sqlerro = False 
 
 
 def button_clicked():
@@ -439,6 +440,7 @@ def button_clicked():
          st.session_state.sqlerro = True
     else:
         #链接数据库并导入
+            st.session_state.sqlerro = False
             st.session_state.timeFinish = gettime()
             try:
                     # 创建数据库引擎
@@ -510,8 +512,7 @@ def button_clicked():
    
 
 
-def render_rec_sidebar():
-    st.session_state.sqlerro = False       
+def render_rec_sidebar():      
     with st.sidebar:
         st.title("问卷调查")
         st.markdown("请认真完成所有内容的填写，这可能会影响你最终的得分。")
