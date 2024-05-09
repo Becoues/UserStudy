@@ -26,6 +26,29 @@ def get_idxlist(input):
         idxlist.append(get_idx(storename))
     return idxlist
 
+def get_cat(idx):
+    for item in range(len(data)) :
+        if data["idx_x"][item] == idx:
+            cat = data['new_category'][item]
+            return cat
+def get_catlist(output):
+    catlist =[]
+    for idx in output:
+        catlist.append(get_cat(idx))
+    return catlist
+
+def get_t(idx):
+    for item in range(len(data)) :
+        if data["idx_x"][item] == idx:
+            t = data['shoptime'][item]
+            return t
+def get_tlist(output):
+    tlist =[]
+    for idx in output:
+        tlist.append(get_t(idx))
+    return tlist
+
+
 #generate_result(output)
 #print("对应的店铺名：", get_storelist(output))
 #print("对应的idx：", get_idxlist(input))
