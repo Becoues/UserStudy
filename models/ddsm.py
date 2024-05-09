@@ -1,4 +1,4 @@
-from typing import List, Tuple, Any
+from typing import Any, List, Union, Tuple   
 
 import numpy as np
 import pandas as pd
@@ -239,9 +239,8 @@ class DDSM(nn.Module):
         # self.w_arr_mean = (torch.load(f'{save_path}w_arr_{step}.pt') / self.tau).softmax(1).mean(0, True).to(self.device)
         self.w_arr_mean = torch.load(f'{save_path}w_arr_mean_{step}.pt').to(self.device)
 
-    def recommend(
-            self, seq: List[int], top_k: int = 5, calculate_likelihood: bool = False, candidates=None
-    ) -> tuple[list[int], float] | list[int]:
+    def recommend(self, seq: List[int], top_k: int = 5, calculate_likelihood: bool = False, candidates=None) -> Union[tuple[list[int], float], list[int]]:
+
         """
         :param seq: 逛店轨迹的index，例如[42, 6, 12]
         :param top_k: 推荐列表长度
