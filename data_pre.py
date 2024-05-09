@@ -20,8 +20,10 @@ idx_to_plaza = {0: '1026', 1: '3030A', 2: '3017', 3: '30,583,059', 4: '3019', 5:
 # 使用 map 方法映射 idx 列
 new_data['plaza_unitid'] = new_data['idx'].map(idx_to_plaza)
 
-
-
+store_data = pd.read_csv('store.csv')
+store_data.rename(columns={'storeName': 'StoreName'}, inplace=True)
+new_data = pd.merge(new_data, store_data[['StoreName', 'plazaName']], on='StoreName', how='left')
+new_data.rename(columns={'plazaName': 'shoptime'}, inplace=True)
 
 idx_to_zoom = {
     0: '1S', 1: '3S', 2: '3S', 3: '3N', 4: '3S', 5: '3S', 6: '1S', 7: '1S', 8: '1S', 9: '1S',
@@ -53,7 +55,4 @@ new_file_path = "data.csv"
 new_data.to_csv(new_file_path, index=False)
 SiteID = new_data['PlazaUnitID'].unique()
 Category = new_data['new_category'].unique()
-
-
-
-print("完成")
+Storename = new_data['StoreName'].unique()

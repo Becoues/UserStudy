@@ -38,29 +38,38 @@ def get_percentile(likelihood: float, seq_length: int) -> List[str]:
 def main():
     model_1 = load_model('ddsm')
     model_2 = load_model('ddsm-ds')
+    # model_3 = load_model('ddsm-sc')
 
     while True:
         same_seeds(100)
-        seq = [73, 37, 130, 23, 6]
+        seq = [110, 93, 45]
         # calculate_likelihood = True: 需要计算likelihood
         rec_1, log_likelihood = model_1.recommend(seq, calculate_likelihood=True)
-        rec_2 = model_2.recommend(seq)
-        print('Method 1:', rec_1)
-        print('Method 2:', rec_2)
+        # rec_2 = model_2.recommend(seq)
+        # rec_3 = model_3.recommend(seq, top_k=5)
+        # print('DDSM:', rec_1)
+        # print('DDSM-DS:', rec_2)
+        # print('DDSM-SC:', rec_3)
         print(log_likelihood)
         # TODO: 计算得分，你也可以考虑呈现方式？
-        percentile = get_percentile(log_likelihood, len(seq))  # ['0.92', '9.58', '91.84']
+        percentile = get_percentile(log_likelihood, len(seq))  # ['0.34', '5.79', '33.57']
         print(percentile)
+        rec_1 = model_1.generate_seq(seq)
+        rec_2 = model_2.generate_seq(seq)
+        # rec_3 = model_3.generate_seq(seq)
+        print('DDSM:', rec_1)
+        print('DDSM-DS:', rec_2)
+        # print('DDSM-SC:', rec_3)
         break
 
 def model_ddsm(seq):
     model = load_model('ddsm')
-    rec = model.recommend(seq,top_k=10,calculate_likelihood=False)
-    return rec
+    rec_1 = model.generate_seq(seq)
+    return rec_1
 
 def model_ddsmds(seq):
     model = load_model('ddsm-ds')
-    rec = model.recommend(seq,top_k=10)
+    rec = model.generate_seq(seq)
     return rec
 
 def model_get_likelihood(seq):
@@ -68,3 +77,6 @@ def model_get_likelihood(seq):
     rec, log_likelihood = model.recommend(seq, calculate_likelihood=True)
     return log_likelihood
 
+
+if __name__ == '__main__':
+    main()
