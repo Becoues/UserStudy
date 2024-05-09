@@ -4,9 +4,9 @@ import numpy as np
 import pandas as pd
 import torch
 import torch.nn as nn
-from typing import List, Any, Tuple, Union
+
 from models.tools.utils import TINY_NUM, positive_func, STORE_NUM, USE_CUDA
-from typing import Any, List, Union, Tuple
+
 
 class DDSM(nn.Module):
     def __init__(self, group_num, demand_num, embed_dim, mc_type, func_type, rnn_params,
@@ -240,22 +240,34 @@ class DDSM(nn.Module):
         self.w_arr_mean = torch.load(f'{save_path}w_arr_mean_{step}.pt').to(self.device)
 
     def recommend(
-            self, seq: List[int], top_k: int = 5, calculate_likelihood: bool = False
-    ) -> Union[Tuple[List[Any], float], List[Any]]:
-        #-> tuple[list[Any], float] | list[Any]:
+            self, seq: List[int], top_k: int = 5, calculate_likelihood: bool = False, candidates=None
+    ) -> tuple[list[int], float] | list[int]:
         """
         :param seq: 逛店轨迹的index，例如[42, 6, 12]
         :param top_k: 推荐列表长度
         :param calculate_likelihood: 是否计算似然
+        :param candidates候选集，如果为None则考虑未出现过的店铺
         :return: rec: 推荐列表的index，例如[9, 46, 2, 1, 54]
         :return: likelihood: seq的似然函数
         """
         result = self.predict(np.array([seq]), None, None, calculate_likelihood)  # 计算所有店铺的推荐概率
-        if calculate_likelihood:
-            i_probs = result[0][0][:STORE_NUM]
+
+        # if calculate_likelihood:
+        #     i_probs = result[0][0]
+        # else:
+        #     i_probs = result[0]
+        # TODO: check here
+        if candidates is None:
+            if calculate_likelihood:
+                i_probs = result[0][0][:STORE_NUM]
+            else:
+                i_probs = result[0][:STORE_NUM]
+            candidates = np.setdiff1d(range(STORE_NUM), seq).tolist()  # 候选集：目前选为未逛过的店铺
         else:
-            i_probs = result[0][:STORE_NUM]
-        candidates = np.setdiff1d(range(STORE_NUM), seq).tolist()  # 候选集：目前选为未逛过的店铺
+            if calculate_likelihood:
+                i_probs = result[0][0]
+            else:
+                i_probs = result[0]
         candidate_score = i_probs[candidates]
         top_indices = candidate_score.argsort()[-top_k:][::-1]  # 取最大的top_k个索引，按概率降序排列
         rec = [candidates[idx] for idx in top_indices]
@@ -264,3 +276,23 @@ class DDSM(nn.Module):
             return rec, np.log(likelihood)
         else:
             return rec
+
+    def generate_seq(self, seq, consider_exit=True, max_length=20, unique=True):
+        store_num = STORE_NUM + (1 if consider_exit else 0)
+        pred_seq = list()
+        candidates = None
+        while candidates is None or len(candidates) > 0:
+            if (not consider_exit) and len(pred_seq) >= max_length:
+                break
+            if unique:
+                candidates = np.setdiff1d(range(store_num), seq + pred_seq).tolist()
+            else:
+                last_store = pred_seq[-1] if len(pred_seq) else seq[-1]
+                candidates = list(range(0, last_store)) + list(range(last_store + 1, store_num))
+            next_store = self.recommend(seq + pred_seq, top_k=1, candidates=candidates)[0]
+            pred_seq.append(next_store)
+            if next_store == STORE_NUM:
+                break
+        assert pred_seq[-1] == STORE_NUM
+        pred_seq = pred_seq[:-1]
+        return pred_seq
