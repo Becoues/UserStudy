@@ -451,6 +451,7 @@ def button_clicked():
                                         student_id,
                                         selected_category,
                                         purpose,
+                                        selected_shops,
                                         output_a,
                                         output_b,
                                         timechoice,
@@ -477,6 +478,7 @@ def button_clicked():
                                 {st.session_state.student_id},
                                 '{st.session_state.selected_category}',
                                 '{','.join(st.session_state.purpose)}',
+                                '{','.join(st.session_state.selected_shops)}',
                                 '{','.join(st.session_state.output_a)}',
                                 '{','.join(st.session_state.output_b)}'
                                 '{','.join(st.session_state.timechoice)}',
