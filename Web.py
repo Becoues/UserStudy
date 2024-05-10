@@ -376,9 +376,9 @@ def render_floor_page():
     st.write(f"🙌使用滚轮可以放大缩小平面图~")
     # 要嵌入的网址
     if st.session_state.position == None:
-        src_url = "https://111.231.19.111:8080"
+        src_url = "https://storerecommend.cn:8080"
     else:
-        src_url = f"https://111.231.19.111:8080/?storeIdx={st.session_state.position}"
+        src_url = f"https://storerecommend.cn:8080/?storeIdx={st.session_state.position}"
     #src_url = "http://localhost:8080"
     # 要显示的部分的尺寸和位置
     position = {"top": -112, "left": 0, "width": 1600, "height": 800}
@@ -645,7 +645,7 @@ def render_result_page():
     trace1 = "-".join(str(num) for num in input_idx)
     trace2 = "-".join(str(num) for num in output_idx_0)
     trace3 = "-".join(str(num) for num in output_idx_1)
-    url_trace = f"https://111.231.19.111:8080/track.html?seq={trace1}&path-a={trace2}&path-b={trace3}"
+    url_trace = f"https://storerecommend.cn:8080/track.html?seq={trace1}&path-a={trace2}&path-b={trace3}"
     position = {"top": -112, "left": 0, "width": 1000, "height": 600}
     st.components.v1.html(f'''
     <div style="position: relative; overflow: hidden; width: {position["width"]}px; height: {position["height"]}px;">
@@ -694,7 +694,7 @@ def render_result_page():
     # st.markdown(f"测试内容：路径打分：likelihood打分：{st.session_state.likelihood:.3f}")
     # st.markdown(f"分位数打分在三种scale下的打分："+",".join(st.session_state.percentile))
     # st.markdown(f"__当前所在位置__：{ data.loc[data['StoreName'] == st.session_state.selected_store, 'floor'].squeeze()}")
-    # src_url2 = f"https://111.231.19.111:8080/?storeIdx={st.session_state.position}"
+    # src_url2 = f"https://storerecommend.cn:8080/?storeIdx={st.session_state.position}"
     # st.markdown(f'<a href="{src_url2}" target="_blank">点击查看地图</a>', unsafe_allow_html=True)
     #st.button("显示地图",on_click=go_to_map)
     # st.markdown("---")
