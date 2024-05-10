@@ -51,6 +51,8 @@ idx_to_zoom_df = pd.DataFrame({'idx': new_data.index})
 idx_to_zoom_df['zoom'] = idx_to_zoom_df['idx'].map(idx_to_zoom)
 new_data = pd.merge(new_data, idx_to_zoom_df, left_index=True, right_on='idx')
 new_data['zoom'] = new_data['zoom'].str[1].replace({'S': '北区', 'N': '南区'})
+
+new_data = new_data.drop_duplicates(subset='StoreName', keep='first')
 new_file_path = "data.csv"
 new_data.to_csv(new_file_path, index=False)
 SiteID = new_data['PlazaUnitID'].unique()
