@@ -282,7 +282,7 @@ def render_floor_sidebar2():
         st.sidebar.button("选第二个", on_click=sidebarclick)
     if st.session_state.sidebar_input == "2":
         st.session_state.time_s = gettime()
-        selected_info = "👌您选择的商铺是：" + "-> ".join(st.session_state.selected_shops)
+        selected_info = "👌您选择的商铺是：" + " &rarr;  ".join(st.session_state.selected_shops)
         st.sidebar.markdown(selected_info)
         st.session_state.selected_store=st.sidebar.selectbox(f"选择您第二个逛的商铺：",st.session_state.shop_list,default_option_index,key="select2")
         if st.session_state.selected_store == None or st.session_state.selected_store == '':
@@ -301,7 +301,7 @@ def render_floor_sidebar2():
         st.sidebar.button("选第三个", on_click=sidebarclick)
     if st.session_state.sidebar_input == "3":
         st.session_state.time_s = gettime()
-        selected_info = "👌您选择的商铺是：" + "-> ".join(st.session_state.selected_shops)
+        selected_info = "👌您选择的商铺是：" + " &rarr;  ".join(st.session_state.selected_shops)
         st.sidebar.markdown(selected_info)
         st.session_state.selected_store=st.sidebar.selectbox(f"选择您第三个逛的商铺：",st.session_state.shop_list,default_option_index,key="select3")
         if st.session_state.selected_store == None or st.session_state.selected_store == '':
@@ -320,7 +320,7 @@ def render_floor_sidebar2():
         st.sidebar.button("选第四个", on_click=sidebarclick)
     if st.session_state.sidebar_input == "4":
         st.session_state.time_s = gettime()
-        selected_info = "👌您选择的商铺是：" + "-> ".join(st.session_state.selected_shops)   
+        selected_info = "👌您选择的商铺是：" + " &rarr;  ".join(st.session_state.selected_shops)   
         st.sidebar.markdown(selected_info)
         st.session_state.selected_store=st.sidebar.selectbox(f"请选择您第四个逛的商铺：",st.session_state.shop_list,default_option_index,key="select4")
         if st.session_state.selected_store == None or st.session_state.selected_store == '':
@@ -339,7 +339,7 @@ def render_floor_sidebar2():
         #st.sidebar.button("选第五个", on_click=sidebarclick)
     # if st.session_state.sidebar_input == "5":
     #     st.session_state.time_s = gettime()
-    #     selected_info = "👌您选择的商铺是：" + "-> ".join(st.session_state.selected_shops)   
+    #     selected_info = "👌您选择的商铺是：" + " &rarr;  ".join(st.session_state.selected_shops)   
     #     st.sidebar.markdown(selected_info)
     #     st.session_state.selected_store=st.sidebar.selectbox(f"请选择您第五个逛的商铺：",st.session_state.shop_list,default_option_index,key="select5")
     #     if st.session_state.selected_store == None or st.session_state.selected_store == '':
@@ -623,9 +623,11 @@ def render_result_page():
         st.session_state.content1 = False
     if 'content2' not in st.session_state:
         st.session_state.content2 = False
-    st.markdown(f"## {st.session_state.nickname}同学，您的逛店信息与模型推荐路径如下，请仔细浏览后完成左侧的问卷：")# {st.session_state.nickname}
+    st.markdown("## 推荐模型对比与评估")
+
+    #st.markdown(f"## {st.session_state.nickname}同学，您的逛店信息与模型推荐路径如下，请仔细浏览后完成左侧的问卷：")# {st.session_state.nickname}
     # st.markdown(f"__逛店目标__："+"，".join(st.session_state.purpose)) # {st.session_state.purpose}
-    st.markdown("__输入序列__："+"-> ".join(st.session_state.selected_shops))# +"-> ".join(st.session_state.selected_shops)
+    st.markdown("__输入序列__："+" &rarr;  ".join(st.session_state.selected_shops))# +" &rarr;  ".join(st.session_state.selected_shops)
     input_idx = trans.get_idxlist(st.session_state.selected_shops)
     output_idx_0 = m.model_ddsm(input_idx)
     output_idx_1 = m.model_ddsmds(input_idx)
@@ -640,13 +642,14 @@ def render_result_page():
     st.session_state.output_b = output_store_1
     #position = {"top": -112, "left": 0, "width": 1000, "height": 600}
     #if st.session_state.random == 1: #blindseed为1 则 A为ddms
-    st.markdown("__模型A__："+"-> ".join(output_store_0))
-    st.markdown("__模型B__："+"-> ".join(output_store_1))
+    st.markdown("__模型A__："+" &rarr;  ".join(output_store_0))
+    st.markdown("__模型B__："+" &rarr;  ".join(output_store_1))
+    st.markdown("__推荐行程的路径展示__")
     trace1 = "-".join(str(num) for num in input_idx)
     trace2 = "-".join(str(num) for num in output_idx_0)
     trace3 = "-".join(str(num) for num in output_idx_1)
     url_trace = f"https://storerecommend.cn:8080/track.html?seq={trace1}&path-a={trace2}&path-b={trace3}"
-    position = {"top": -112, "left": 0, "width": 1000, "height": 600}
+    position = {"top": -150, "left": 0, "width": 1150, "height": 625}
     st.components.v1.html(f'''
     <div style="position: relative; overflow: hidden; width: {position["width"]}px; height: {position["height"]}px;">
         <iframe
@@ -676,15 +679,17 @@ def render_result_page():
     # </div>
     # ''', height=position["height"], width=position["width"])
     # else:
-    #     st.markdown("__模型A__："+"-> ".join(output_store_1))
-    #     st.markdown("__模型B__："+"-> ".join(output_store_0))
+    #     st.markdown("__模型A__："+" &rarr;  ".join(output_store_1))
+    #     st.markdown("__模型B__："+" &rarr;  ".join(output_store_0))
     #st.markdown("---")
     st.markdown("__推荐行程中店铺的对应类别：__")
-    st.markdown("__模型A__："+"-> ".join(trans.get_catlist(output_idx_0)))
-    st.markdown("__模型B__："+"-> ".join(trans.get_catlist(output_idx_1)))
+    st.markdown("__模型A__："+" &rarr;  ".join(trans.get_catlist(output_idx_0)))
+    st.markdown("__模型B__："+" &rarr;  ".join(trans.get_catlist(output_idx_1)))
     st.markdown("__推荐行程中店铺的平均停留时间(单位：分钟)：__")
-    st.markdown("__模型A__："+"-> ".join(str(num) for num in trans.get_tlist(output_idx_0)))
-    st.markdown("__模型B__："+"-> ".join(str(num) for num in trans.get_tlist(output_idx_1)))
+    sum0 = int(sum(trans.get_tlist(output_idx_0)))
+    sum1 = int(sum(trans.get_tlist(output_idx_1)))
+    st.markdown("__模型A__："+" &rarr; ".join(str(int(num)) for num in trans.get_tlist(output_idx_0))+f"（行程总计：{sum0}分钟)")
+    st.markdown("__模型B__："+" &rarr; ".join(str(int(num)) for num in trans.get_tlist(output_idx_1))+f"（行程总计：{sum1}分钟)")
 
 
 
