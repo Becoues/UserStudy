@@ -365,6 +365,7 @@ def go_to_page_rec():
             st.session_state.position = data.loc[data['StoreName'] == st.session_state.selected_store,'idx_x'].squeeze()
             st.session_state.selected_shops.append(st.session_state.selected_store)
             st.session_state.timeBegin_3 = gettime()
+            st.session_state.top = True
             st.session_state.page = 'rec_page'
         else : st.session_state.erro = True
 
@@ -529,19 +530,19 @@ def render_rec_sidebar():
 
         #兴趣匹配度
         st.session_state.intrestmatch = ""
-        st.session_state.intrestmatch = st.sidebar.selectbox("__1.兴趣匹配度：__ 哪个模型推荐的行程能更好地匹配你的逛店需求和兴趣？",["模型A","模型B"],default_option_index)
+        st.session_state.intrestmatch = st.sidebar.selectbox("__1.兴趣匹配度：__ 哪个模型推荐的行程能更好地匹配你的逛店需求和兴趣、较少包含兴趣无关的店铺？",["模型A","模型B","二者接近","均无"],default_option_index)
         st.session_state.feedback1 = st.text_area("请说明理由：",key="str1")
         #路径便利性
         st.session_state.pathconvenience = ""
-        st.session_state.pathconvenience = st.sidebar.selectbox("__2.路径便利性：__ 哪个模型推荐的行程更符合人们的步行移动习惯，少有绕路、来回跳转的现象？",["模型A","模型B","均有","均无"],default_option_index)
+        st.session_state.pathconvenience = st.sidebar.selectbox("__2.路径便利性：__ 哪个模型推荐的行程更符合人们的步行移动习惯，少有绕路、来回跳转的现象？",["模型A","模型B","二者接近","均无"],default_option_index)
         st.session_state.feedback2 = st.text_area("请结合平面图的店铺分布给出绕路的行程段：",key="str2")
         #时间/精力限制
         st.session_state.timelimit = ""
-        st.session_state.timelimit = st.sidebar.selectbox("__3.时间/精力限制：__ 哪个模型推荐的行程就长度和店铺构成而言更符合你的时间和体力限制，不会反复推荐耗时、费体力的店铺？",["模型A","模型B"],default_option_index)
+        st.session_state.timelimit = st.sidebar.selectbox("__3.时间/精力限制：__ 哪个模型推荐的行程就长度和店铺构成而言更符合你的时间和体力限制，不会反复推荐耗时、费体力的店铺？",["模型A","模型B","二者接近","均无"],default_option_index)
         st.session_state.feedback3 = st.text_area("请给出不符合时间/精力限制的行程段：",key="str3")
         #行程多样性
         st.session_state.pathvariety = ""
-        st.session_state.pathvariety = st.sidebar.selectbox("__4.行程多样性：__ 哪个模型推荐的行程更能满足你实际逛店情境中多样化的逛店需求？",["模型A","模型B"],default_option_index)
+        st.session_state.pathvariety = st.sidebar.selectbox("__4.行程多样性：__ 哪个模型推荐的行程更能满足你实际逛店情境中多样化的逛店需求（即包含多个逛店类别且匹配你的实际偏好）？",["模型A","模型B","二者接近","均无"],default_option_index)
         st.session_state.feedback4 = st.text_area("请说明理由：",key="str4")
         #乏味感
         st.session_state.boredom = ""
@@ -559,7 +560,7 @@ def render_rec_sidebar():
             st.session_state.feedback5,
         ]
         basemoney = 30
-        score_str = score_for_feedback(feedbacks)
+        score_str = score_for_feedback(feedbacks,st.session_state.pathconvenience,st.session_state.timelimit,st.session_state.boredom)
         score_trace  = (-m.model_get_likelihood(trans.get_idxlist(st.session_state.selected_shops))-20)/10  
         st.session_state.likelihood = m.model_get_likelihood(trans.get_idxlist(st.session_state.selected_shops))
         money = basemoney+ score_trace +score_str
@@ -617,12 +618,27 @@ def toggle_content1():
 def toggle_content2():
     st.session_state.content2 = not st.session_state.content2
 
+def scroll_to_top():
+    # 使用 Streamlit 的 html 功能加载自定义 JavaScript
+    st.write(
+        """
+        <script type="text/javascript">
+            // 通过 JavaScript 强制滚动到顶部
+            window.scrollTo(0, 0);
+        </script>
+        """,
+        unsafe_allow_html=True
+    )
 
 def render_result_page():
+    if st.session_state.top:
+        scroll_to_top()
+        st.session_state.top = False
     if 'content1' not in st.session_state:
         st.session_state.content1 = False
     if 'content2' not in st.session_state:
         st.session_state.content2 = False
+    
     st.markdown("## 推荐模型对比与评估")
 
     #st.markdown(f"## {st.session_state.nickname}同学，您的逛店信息与模型推荐路径如下，请仔细浏览后完成左侧的问卷：")# {st.session_state.nickname}
@@ -644,6 +660,9 @@ def render_result_page():
     #if st.session_state.random == 1: #blindseed为1 则 A为ddms
     st.markdown("__模型A__："+" &rarr;  ".join(output_store_0))
     st.markdown("__模型B__："+" &rarr;  ".join(output_store_1))
+    st.markdown(" ")
+    st.markdown("请对于模型A、B的推荐结果进行评价，完成左侧问卷。下方展示了推荐行程对应的路径演示、所含类别和停留时间信息，为你的评估决策提供参考。")
+    st.markdown(" ")
     st.markdown("__推荐行程的路径展示__")
     trace1 = "-".join(str(num) for num in input_idx)
     trace2 = "-".join(str(num) for num in output_idx_0)
@@ -688,8 +707,18 @@ def render_result_page():
     st.markdown("__推荐行程中店铺的平均停留时间(单位：分钟)：__")
     sum0 = int(sum(trans.get_tlist(output_idx_0)))
     sum1 = int(sum(trans.get_tlist(output_idx_1)))
-    st.markdown("__模型A__："+" &rarr; ".join(str(int(num)) for num in trans.get_tlist(output_idx_0))+f"（行程总计：{sum0}分钟)")
-    st.markdown("__模型B__："+" &rarr; ".join(str(int(num)) for num in trans.get_tlist(output_idx_1))+f"（行程总计：{sum1}分钟)")
+    shop_names0 = trans.get_storelist(output_idx_0)
+    time_spent0= [str(int(num)) for num in trans.get_tlist(output_idx_0)]
+    combined_list0 = zip(shop_names0, time_spent0)
+    formatted_list0 = [f"{name} ({time})" for name, time in combined_list0]
+    formatted_output0 = " &rarr; ".join(formatted_list0)
+    st.markdown(f"__模型A__：{formatted_output0}（行程总计：{sum0}分钟）")
+    shop_names1 = trans.get_storelist(output_idx_1)
+    time_spent1= [str(int(num)) for num in trans.get_tlist(output_idx_1)]
+    combined_list1 = zip(shop_names1, time_spent1)
+    formatted_list1 = [f"{name} ({time})" for name, time in combined_list1]
+    formatted_output1 = " &rarr; ".join(formatted_list1)
+    st.markdown(f"__模型B__：{formatted_output1}（行程总计：{sum1}分钟）")
 
 
 
