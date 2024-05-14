@@ -350,7 +350,7 @@ def render_floor_sidebar2():
         if st.session_state.erro2:
             st.sidebar.error('请填写完整信息')
             st.session_state.erro2 = False
-            st.sidebar.button('开始推荐',on_click= go_to_page_rec)
+        st.sidebar.button('开始推荐',on_click= go_to_page_rec)
     # if st.session_state.sidebar_input == "5":
     #     selected_info = "👌您选择的商铺是：" + " &rarr;  ".join(st.session_state.selected_shops)   
     #     st.sidebar.markdown(selected_info)
