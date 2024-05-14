@@ -308,8 +308,8 @@ def render_floor_sidebar2():
             col1, col2 = st.sidebar.columns(2) 
             with col1:
                  st.button("选第三个", on_click=sidebarclick)
-            #with col2:
-                 #st.button('开始推荐',on_click= go_to_page_rec)
+            with col2:
+                 st.button('开始推荐',on_click= go_to_page_rec)
     if st.session_state.sidebar_input == "3":
         st.session_state.time_s = gettime()
         selected_info = "👌您选择的商铺是：" + " &rarr;  ".join(st.session_state.selected_shops)
@@ -350,16 +350,12 @@ def render_floor_sidebar2():
         if st.session_state.erro2:
             st.sidebar.error('请填写完整信息')
             st.session_state.erro2 = False
-        with st.sidebar:
-            col1, col2 = st.sidebar.columns(2) 
-            with col1:
-                 st.button("我选好了", on_click=sidebarclick)
-            with col2:
-                 st.button('开始推荐',on_click= go_to_page_rec)
-    if st.session_state.sidebar_input == "5":
-        selected_info = "👌您选择的商铺是：" + " &rarr;  ".join(st.session_state.selected_shops)   
-        st.sidebar.markdown(selected_info)
-        st.sidebar.button('开始推荐！',on_click= go_to_page_rec)
+            st.sidebar.button('开始推荐',on_click= go_to_page_rec)
+    # if st.session_state.sidebar_input == "5":
+    #     selected_info = "👌您选择的商铺是：" + " &rarr;  ".join(st.session_state.selected_shops)   
+    #     st.sidebar.markdown(selected_info)
+    #     st.sidebar.button('开始推荐！',on_click= go_to_page_rec)
+
         #st.sidebar.button("选第五个", on_click=sidebarclick)
     # if st.session_state.sidebar_input == "5":
     #     st.session_state.time_s = gettime()
@@ -382,16 +378,16 @@ def render_floor_sidebar2():
 
 
 def go_to_page_rec():
-    # if st.session_state.selected_store == None or st.session_state.selected_store == '' or st.session_state.site== None or st.session_state.site=='':
-    #     st.session_state.erro2 = True
-    # else:
-    #     if st.session_state.site == st.session_state.ture_site:
-    #         st.session_state.position = data.loc[data['StoreName'] == st.session_state.selected_store,'idx_x'].squeeze()
-            # st.session_state.selected_shops.append(st.session_state.selected_store)
-    st.session_state.timeBegin_3 = gettime()
-    st.session_state.top = True
-    st.session_state.page = 'rec_page'
-        # else : st.session_state.erro = True
+    if st.session_state.selected_store == None or st.session_state.selected_store == '' or st.session_state.site== None or st.session_state.site=='':
+        st.session_state.erro2 = True
+    else:
+        if st.session_state.site == st.session_state.ture_site:
+            st.session_state.position = data.loc[data['StoreName'] == st.session_state.selected_store,'idx_x'].squeeze()
+            st.session_state.selected_shops.append(st.session_state.selected_store)
+            st.session_state.timeBegin_3 = gettime()
+            st.session_state.top = True
+            st.session_state.page = 'rec_page'
+        else : st.session_state.erro = True
 
 
         
@@ -464,10 +460,44 @@ def button_clicked():
        st.session_state.boredom == "":
          st.session_state.sqlerro = True
     else:
+        #补丁
+        adjusted_selected_shops = []
+        for name in st.session_state.selected_shops:
+            # 如果店铺名称包含单引号，则进行替换处理
+            if "'" in name:
+                # 将单引号替换为两个单引号
+                adjusted_name = name.replace("'", "''")
+                # 添加调整后的店铺名称到新列表中
+                adjusted_selected_shops .append(adjusted_name)
+            else:
+                # 如果店铺名称不包含单引号，则直接添加到新列表中
+                adjusted_selected_shops .append(name)
+        adjusted_output_a = []
+        for name in st.session_state.output_a:
+            # 如果店铺名称包含单引号，则进行替换处理
+            if "'" in name:
+                # 将单引号替换为两个单引号
+                adjusted_name = name.replace("'", "''")
+                # 添加调整后的店铺名称到新列表中
+                adjusted_output_a.append(adjusted_name)
+            else:
+                # 如果店铺名称不包含单引号，则直接添加到新列表中
+                adjusted_output_a.append(name)
+        adjusted_output_b = []
+        for name in st.session_state.output_b:
+            # 如果店铺名称包含单引号，则进行替换处理
+            if "'" in name:
+                # 将单引号替换为两个单引号
+                adjusted_name = name.replace("'", "''")
+                # 添加调整后的店铺名称到新列表中
+                adjusted_output_b.append(adjusted_name)
+            else:
+                # 如果店铺名称不包含单引号，则直接添加到新列表中
+                adjusted_output_b.append(name)
         #链接数据库并导入
-            st.session_state.sqlerro = False
-            st.session_state.timeFinish = gettime()
-            try:
+        st.session_state.sqlerro = False
+        st.session_state.timeFinish = gettime()
+        try:
                     # 创建数据库引擎
                     engine = create_engine(DATABASE_URL)
                     # 执行SQL插入操作
@@ -508,9 +538,9 @@ def button_clicked():
                                 {st.session_state.student_id},
                                 '{st.session_state.selected_category}',
                                 '{','.join(st.session_state.purpose)}',
-                                '{','.join(st.session_state.selected_shops)}',
-                                '{','.join(st.session_state.output_a)}',
-                                '{','.join(st.session_state.output_b)}',
+                                '{','.join(adjusted_selected_shops)}',
+                                '{','.join(adjusted_output_a)}',
+                                '{','.join(adjusted_output_b)}',
                                 '{','.join(st.session_state.timechoice)}',
                                 '{st.session_state.intrestmatch}',
                                 '{st.session_state.feedback1}',       
@@ -543,7 +573,7 @@ def button_clicked():
                             st.session_state.button_clicked = True 
                         else:
                             st.sidebar.error("未能检索数据，连接失败。")
-            except SQLAlchemyError as e:
+        except SQLAlchemyError as e:
                     st.sidebar.error(f"连接到数据库失败: {e}")
    
 
