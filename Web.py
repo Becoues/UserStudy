@@ -94,7 +94,7 @@ def botton_c ():
     # if st.session_state.student_id == "" or st.session_state.nickname == "" or st.session_state.purpose== "":
     #     st.session_state.page = 'welcome'
     # else: st.session_state.page = 'shopping_page' 
-    if st.session_state.student_id == "" or st.session_state.nickname == "" or not st.session_state.purpose:
+    if st.session_state.student_id == "" or st.session_state.nickname == "" or not st.session_state.purpose or st.session_state.gender == None or st.session_state.age == None or st.session_state.grade == None:
         st.sidebar.error("请填写完整信息")
     else : 
         st.session_state.timeBegin_2 = gettime()
@@ -108,8 +108,15 @@ def render_welcome_sidebar():
         st.session_state.student_id = ""
         st.session_state.nickname = ""
         st.session_state.purpose = [0]
+        st.session_state.gender = ""
+        st.session_state.age = ""
+        st.session_state.grade = ""
+        default_option_index = None
         st.session_state.student_id = st.text_input("学号:",placeholder="请输入您的学号")
         st.session_state.nickname = st.text_input("昵称:",placeholder="我们可以怎么称呼您呢")
+        st.session_state.gender = st.selectbox("性别:",["男","女"],default_option_index)
+        st.session_state.age = st.selectbox("年龄:",["17岁及以下","18~22岁","23~25岁","26~30岁","31岁及以上"],default_option_index)
+        st.session_state.grade = st.selectbox("年级:",["大一","大二","大三","大四","硕士生","博士生","其他"],default_option_index) 
         categories =list(category_mapping.keys())
         st.session_state.purpose = st.sidebar.multiselect("你可以预想一下你逛商场的目的:", categories)      
 
@@ -297,8 +304,12 @@ def render_floor_sidebar2():
         if st.session_state.erro2:
             st.sidebar.error('请填写完整信息')
             st.session_state.erro2 = False
-        st.sidebar.button('我选好了，开始推荐！',on_click= go_to_page_rec)
-        st.sidebar.button("选第三个", on_click=sidebarclick)
+        with st.sidebar:
+            col1, col2 = st.sidebar.columns(2) 
+            with col1:
+                 st.button("选第三个", on_click=sidebarclick)
+            #with col2:
+                 #st.button('开始推荐',on_click= go_to_page_rec)
     if st.session_state.sidebar_input == "3":
         st.session_state.time_s = gettime()
         selected_info = "👌您选择的商铺是：" + " &rarr;  ".join(st.session_state.selected_shops)
@@ -316,8 +327,12 @@ def render_floor_sidebar2():
         if st.session_state.erro2:
             st.sidebar.error('请填写完整信息')
             st.session_state.erro2 = False
-        st.sidebar.button('我选好了，开始推荐！',on_click= go_to_page_rec)
-        st.sidebar.button("选第四个", on_click=sidebarclick)
+        with st.sidebar:
+            col1, col2 = st.sidebar.columns(2) 
+            with col1:
+                 st.button("选第四个", on_click=sidebarclick)
+            with col2:
+                 st.button('开始推荐',on_click= go_to_page_rec)
     if st.session_state.sidebar_input == "4":
         st.session_state.time_s = gettime()
         selected_info = "👌您选择的商铺是：" + " &rarr;  ".join(st.session_state.selected_shops)   
@@ -335,7 +350,16 @@ def render_floor_sidebar2():
         if st.session_state.erro2:
             st.sidebar.error('请填写完整信息')
             st.session_state.erro2 = False
-        st.sidebar.button('我选好了，开始推荐！',on_click= go_to_page_rec)
+        with st.sidebar:
+            col1, col2 = st.sidebar.columns(2) 
+            with col1:
+                 st.button("我选好了", on_click=sidebarclick)
+            with col2:
+                 st.button('开始推荐',on_click= go_to_page_rec)
+    if st.session_state.sidebar_input == "5":
+        selected_info = "👌您选择的商铺是：" + " &rarr;  ".join(st.session_state.selected_shops)   
+        st.sidebar.markdown(selected_info)
+        st.sidebar.button('开始推荐！',on_click= go_to_page_rec)
         #st.sidebar.button("选第五个", on_click=sidebarclick)
     # if st.session_state.sidebar_input == "5":
     #     st.session_state.time_s = gettime()
@@ -358,16 +382,16 @@ def render_floor_sidebar2():
 
 
 def go_to_page_rec():
-    if st.session_state.selected_store == None or st.session_state.selected_store == '' or st.session_state.site== None or st.session_state.site=='':
-        st.session_state.erro2 = True
-    else:
-        if st.session_state.site == st.session_state.ture_site:
-            st.session_state.position = data.loc[data['StoreName'] == st.session_state.selected_store,'idx_x'].squeeze()
-            st.session_state.selected_shops.append(st.session_state.selected_store)
-            st.session_state.timeBegin_3 = gettime()
-            st.session_state.top = True
-            st.session_state.page = 'rec_page'
-        else : st.session_state.erro = True
+    # if st.session_state.selected_store == None or st.session_state.selected_store == '' or st.session_state.site== None or st.session_state.site=='':
+    #     st.session_state.erro2 = True
+    # else:
+    #     if st.session_state.site == st.session_state.ture_site:
+    #         st.session_state.position = data.loc[data['StoreName'] == st.session_state.selected_store,'idx_x'].squeeze()
+            # st.session_state.selected_shops.append(st.session_state.selected_store)
+    st.session_state.timeBegin_3 = gettime()
+    st.session_state.top = True
+    st.session_state.page = 'rec_page'
+        # else : st.session_state.erro = True
 
 
         
@@ -473,7 +497,12 @@ def button_clicked():
                                         timeFinish,
                                         timeBegin_2,
                                         timeBegin_3,
-                                        likelihood
+                                        likelihood,
+                                        gender,
+                                        age,
+                                        grade,
+                                        money,
+                                        nickname
                                         ) 
                             VALUES (
                                 {st.session_state.student_id},
@@ -481,7 +510,7 @@ def button_clicked():
                                 '{','.join(st.session_state.purpose)}',
                                 '{','.join(st.session_state.selected_shops)}',
                                 '{','.join(st.session_state.output_a)}',
-                                '{','.join(st.session_state.output_b)}'
+                                '{','.join(st.session_state.output_b)}',
                                 '{','.join(st.session_state.timechoice)}',
                                 '{st.session_state.intrestmatch}',
                                 '{st.session_state.feedback1}',       
@@ -500,8 +529,12 @@ def button_clicked():
                                 '{st.session_state.timeFinish}',
                                 '{st.session_state.timeBegin_2}',
                                 '{st.session_state.timeBegin_3}',
-                                '{','.join(st.session_state.timechoice)}',
-                                '{st.session_state.likelihood}'
+                                '{st.session_state.likelihood}',
+                                '{st.session_state.gender}',
+                                '{st.session_state.age}',
+                                '{st.session_state.grade}',
+                                '{st.session_state.money}',
+                                '{st.session_state.nickname}'
                             );"""
                         query = text(x)
                         result = conn.execute(query)  # 执行插入
@@ -534,15 +567,15 @@ def render_rec_sidebar():
         st.session_state.feedback1 = st.text_area("请说明理由：",key="str1")
         #路径便利性
         st.session_state.pathconvenience = ""
-        st.session_state.pathconvenience = st.sidebar.selectbox("__2.路径便利性：__ 哪个模型推荐的行程更符合人们的步行移动习惯，少有绕路、来回跳转的现象？",["模型A","模型B","二者接近","均无"],default_option_index)
+        st.session_state.pathconvenience = st.sidebar.selectbox("__2.路径便利性：__ 哪个模型推荐的行程更符合人们的步行移动习惯，少有绕路、来回跳转的现象？可结合右侧的路径展示图进行判断。",["模型A","模型B","二者接近","均无"],default_option_index)
         st.session_state.feedback2 = st.text_area("请结合平面图的店铺分布给出绕路的行程段：",key="str2")
         #时间/精力限制
         st.session_state.timelimit = ""
-        st.session_state.timelimit = st.sidebar.selectbox("__3.时间/精力限制：__ 哪个模型推荐的行程就长度和店铺构成而言更符合你的时间和体力限制，不会反复推荐耗时、费体力的店铺？",["模型A","模型B","二者接近","均无"],default_option_index)
+        st.session_state.timelimit = st.sidebar.selectbox("__3.时间/精力限制：__ 哪个模型推荐的行程就长度和店铺构成而言更符合你的时间和体力限制，不会反复推荐耗时、费体力的店铺？可结合右侧平均停留时间判断。",["模型A","模型B","二者接近","均无"],default_option_index)
         st.session_state.feedback3 = st.text_area("请给出不符合时间/精力限制的行程段：",key="str3")
         #行程多样性
         st.session_state.pathvariety = ""
-        st.session_state.pathvariety = st.sidebar.selectbox("__4.行程多样性：__ 哪个模型推荐的行程更能满足你实际逛店情境中多样化的逛店需求（即包含多个逛店类别且匹配你的实际偏好）？",["模型A","模型B","二者接近","均无"],default_option_index)
+        st.session_state.pathvariety = st.sidebar.selectbox("__4.行程多样性：__ 哪个模型推荐的行程更能满足你实际逛店情境中多样化的逛店需求（即包含多个逛店类别且匹配你的实际偏好）可结合右侧店铺类别信息判断。？",["模型A","模型B","二者接近","均无"],default_option_index)
         st.session_state.feedback4 = st.text_area("请说明理由：",key="str4")
         #乏味感
         st.session_state.boredom = ""
@@ -563,15 +596,15 @@ def render_rec_sidebar():
         score_str = score_for_feedback(feedbacks,st.session_state.pathconvenience,st.session_state.timelimit,st.session_state.boredom)
         score_trace  = (-m.model_get_likelihood(trans.get_idxlist(st.session_state.selected_shops))-20)/10  
         st.session_state.likelihood = m.model_get_likelihood(trans.get_idxlist(st.session_state.selected_shops))
-        money = basemoney+ score_trace +score_str
-        formatted_money = "{:.1f}".format(money)
+        st.session_state.money = basemoney+ score_trace +score_str
+        formatted_money = "{:.1f}".format(st.session_state.money)
         formatted_score = "{:.1f}".format(float(score_trace))
         if st.session_state.sqlerro:
             st.sidebar.error('请填写完整信息')
         if not st.session_state.button_clicked:
                 button = st.button("完成",on_click=button_clicked)
-
-        else:st.sidebar.success(f"恭喜完成本次实验! 您的实验收益为：{formatted_money}元（其中问卷部分为：{score_str}, 路径实验部分为：{formatted_score}）") 
+        #（其中问卷部分为：{score_str}, 路径实验部分为：{formatted_score}）
+        else:st.sidebar.success(f"恭喜完成本次实验! 您的实验收益为：{formatted_money}元") 
         # 老版本问卷
         # st.session_state.recommendations_1 = []
         # st.session_state.recommendations_2 = []
@@ -662,8 +695,18 @@ def render_result_page():
     st.markdown("__模型B__："+" &rarr;  ".join(output_store_1))
     st.markdown(" ")
     st.markdown("请对于模型A、B的推荐结果进行评价，完成左侧问卷。下方展示了推荐行程对应的路径演示、所含类别和停留时间信息，为你的评估决策提供参考。")
-    st.markdown(" ")
-    st.markdown("__推荐行程的路径展示__")
+    custom_css = """
+    <style>
+    .horizontal-line {
+        margin-top: 0px; /* 上间距 */
+        margin-bottom: 5px; /* 下间距 */
+        border-top: 1px solid #D3D3D3; /* 横线样式，浅灰色 */
+    }
+    </style>
+    """
+    st.markdown(custom_css, unsafe_allow_html=True)
+    st.markdown('<div class="horizontal-line"></div>', unsafe_allow_html=True)
+    st.markdown("__推荐行程的路径展示__（请先选择模型）")
     trace1 = "-".join(str(num) for num in input_idx)
     trace2 = "-".join(str(num) for num in output_idx_0)
     trace3 = "-".join(str(num) for num in output_idx_1)
@@ -702,6 +745,7 @@ def render_result_page():
     #     st.markdown("__模型B__："+" &rarr;  ".join(output_store_0))
     #st.markdown("---")
     st.markdown("__推荐行程中店铺的对应类别：__")
+    st.markdown("__输入序列__："+" &rarr; ".join(trans.get_catlist(input_idx)))
     st.markdown("__模型A__："+" &rarr;  ".join(trans.get_catlist(output_idx_0)))
     st.markdown("__模型B__："+" &rarr;  ".join(trans.get_catlist(output_idx_1)))
     st.markdown("__推荐行程中店铺的平均停留时间(单位：分钟)：__")
