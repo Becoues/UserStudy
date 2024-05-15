@@ -787,7 +787,7 @@ def render_result_page():
     #     st.markdown("__模型A__："+" &rarr;  ".join(output_store_1))
     #     st.markdown("__模型B__："+" &rarr;  ".join(output_store_0))
     #st.markdown("---")
-    st.markdown("_逛店行程中店铺的对应类别：__")
+    st.markdown("__逛店行程中店铺的对应类别：__")
     st.markdown("__输入序列__："+" &rarr; ".join(trans.get_catlist(input_idx)))
     st.markdown("__模型A__："+" &rarr;  ".join(trans.get_catlist(output_idx_0)))
     st.markdown("__模型B__："+" &rarr;  ".join(trans.get_catlist(output_idx_1)))
