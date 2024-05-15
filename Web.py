@@ -269,6 +269,7 @@ def render_floor_sidebar2():
         st.session_state.site = ''
         st.session_state.ture_site = ''
         st.session_state.position = None
+        st.session_state.len =False
     if st.session_state.sidebar_input == "1":
         st.session_state.time_s = gettime()
         st.sidebar.markdown("请点击右侧平面图跳转至对应楼层进行浏览：")
@@ -304,6 +305,9 @@ def render_floor_sidebar2():
         if st.session_state.erro2:
             st.sidebar.error('请填写完整信息')
             st.session_state.erro2 = False
+        if st.session_state.len:
+            st.sidebar.error('至少要逛两个店铺')
+            st.session_state.len = False
         with st.sidebar:
             col1, col2 = st.sidebar.columns(2) 
             with col1:
@@ -378,16 +382,25 @@ def render_floor_sidebar2():
 
 
 def go_to_page_rec():
-    if st.session_state.selected_store == None or st.session_state.selected_store == '' or st.session_state.site== None or st.session_state.site=='':
-        st.session_state.erro2 = True
+    if  int(st.session_state.sidebar_input) == 2 and st.session_state.selected_store == None and st.session_state.site== None:
+        st.session_state.len =True
     else:
-        if st.session_state.site == st.session_state.ture_site:
-            st.session_state.position = data.loc[data['StoreName'] == st.session_state.selected_store,'idx_x'].squeeze()
-            st.session_state.selected_shops.append(st.session_state.selected_store)
-            st.session_state.timeBegin_3 = gettime()
-            st.session_state.top = True
-            st.session_state.page = 'rec_page'
-        else : st.session_state.erro = True
+        if st.session_state.selected_store == None or st.session_state.selected_store == '' or st.session_state.site== None or st.session_state.site=='':
+            st.session_state.erro2 = True
+        else:
+            if st.session_state.site == st.session_state.ture_site:
+                st.session_state.position = data.loc[data['StoreName'] == st.session_state.selected_store,'idx_x'].squeeze()
+                st.session_state.selected_shops.append(st.session_state.selected_store)
+                st.session_state.timeBegin_3 = gettime()
+                st.session_state.top = True
+                st.session_state.page = 'rec_page'
+            else : st.session_state.erro = True
+    if int(st.session_state.sidebar_input) > 2 and st.session_state.selected_store == None and st.session_state.site== None:
+        st.session_state.timeBegin_3 = gettime()
+        st.session_state.top = True
+        st.session_state.page = 'rec_page'
+    
+
 
 
         
@@ -605,7 +618,7 @@ def render_rec_sidebar():
         st.session_state.feedback3 = st.text_area("请给出不符合时间/精力限制的行程段：",key="str3")
         #行程多样性
         st.session_state.pathvariety = ""
-        st.session_state.pathvariety = st.sidebar.selectbox("__4.行程多样性：__ 哪个模型推荐的行程更能满足你实际逛店情境中多样化的逛店需求（即包含多个逛店类别且匹配你的实际偏好）可结合右侧店铺类别信息判断。？",["模型A","模型B","二者接近","均无"],default_option_index)
+        st.session_state.pathvariety = st.sidebar.selectbox("__4.行程多样性：__ 哪个模型推荐的行程更能满足你实际逛店情境中多样化的逛店需求（即包含多个逛店类别且匹配你的实际偏好）？可结合右侧店铺类别信息判断。",["模型A","模型B","二者接近","均无"],default_option_index)
         st.session_state.feedback4 = st.text_area("请说明理由：",key="str4")
         #乏味感
         st.session_state.boredom = ""
@@ -774,7 +787,7 @@ def render_result_page():
     #     st.markdown("__模型A__："+" &rarr;  ".join(output_store_1))
     #     st.markdown("__模型B__："+" &rarr;  ".join(output_store_0))
     #st.markdown("---")
-    st.markdown("__推荐行程中店铺的对应类别：__")
+    st.markdown("_逛店行程中店铺的对应类别：__")
     st.markdown("__输入序列__："+" &rarr; ".join(trans.get_catlist(input_idx)))
     st.markdown("__模型A__："+" &rarr;  ".join(trans.get_catlist(output_idx_0)))
     st.markdown("__模型B__："+" &rarr;  ".join(trans.get_catlist(output_idx_1)))
