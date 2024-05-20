@@ -507,6 +507,16 @@ def button_clicked():
             else:
                 # 如果店铺名称不包含单引号，则直接添加到新列表中
                 adjusted_output_b.append(name)
+        if "'" in st.session_state.feedback1:
+            adjusted_fd1 = st.session_state.feedback1.replace("'", "''")
+        if "'" in st.session_state.feedback2:
+            adjusted_fd2 = st.session_state.feedback2.replace("'", "''")
+        if "'" in st.session_state.feedback3:
+            adjusted_fd3 = st.session_state.feedback3.replace("'", "''")
+        if "'" in st.session_state.feedback4:
+            adjusted_fd4 = st.session_state.feedback4.replace("'", "''")
+        if "'" in st.session_state.feedback5:
+            adjusted_fd5 = st.session_state.feedback5.replace("'", "''")
         #链接数据库并导入
         st.session_state.sqlerro = False
         st.session_state.timeFinish = gettime()
@@ -556,15 +566,15 @@ def button_clicked():
                                 '{','.join(adjusted_output_b)}',
                                 '{','.join(st.session_state.timechoice)}',
                                 '{st.session_state.intrestmatch}',
-                                '{st.session_state.feedback1}',       
+                                '{adjusted_fd1}',       
                                 '{st.session_state.pathconvenience}',
-                                '{st.session_state.feedback2}', 
+                                '{adjusted_fd2}', 
                                 '{st.session_state.timelimit}',
-                                '{st.session_state.feedback3}', 
+                                '{adjusted_fd3}', 
                                 '{st.session_state.pathvariety}',
-                                '{st.session_state.feedback4}',     
+                                '{adjusted_fd4}',     
                                 '{st.session_state.boredom}',
-                                '{st.session_state.feedback5}', 
+                                '{adjusted_fd5}', 
                                 {st.session_state.rating_A},
                                 {st.session_state.rating_B},
                                 '{st.session_state.random}',
