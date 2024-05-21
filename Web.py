@@ -509,14 +509,19 @@ def button_clicked():
                 adjusted_output_b.append(name)
         if "'" in st.session_state.feedback1:
             adjusted_fd1 = st.session_state.feedback1.replace("'", "''")
+            st.session_state.feedback1 = adjusted_fd1
         if "'" in st.session_state.feedback2:
             adjusted_fd2 = st.session_state.feedback2.replace("'", "''")
+            st.session_state.feedback2 = adjusted_fd2
         if "'" in st.session_state.feedback3:
             adjusted_fd3 = st.session_state.feedback3.replace("'", "''")
+            st.session_state.feedback3 = adjusted_fd3
         if "'" in st.session_state.feedback4:
             adjusted_fd4 = st.session_state.feedback4.replace("'", "''")
+            st.session_state.feedback4 = adjusted_fd4
         if "'" in st.session_state.feedback5:
             adjusted_fd5 = st.session_state.feedback5.replace("'", "''")
+            st.session_state.feedback5 = adjusted_fd5
         #链接数据库并导入
         st.session_state.sqlerro = False
         st.session_state.timeFinish = gettime()
@@ -566,15 +571,15 @@ def button_clicked():
                                 '{','.join(adjusted_output_b)}',
                                 '{','.join(st.session_state.timechoice)}',
                                 '{st.session_state.intrestmatch}',
-                                '{adjusted_fd1}',       
+                                '{st.session_state.feedback1}',       
                                 '{st.session_state.pathconvenience}',
-                                '{adjusted_fd2}', 
+                                '{st.session_state.feedback2}', 
                                 '{st.session_state.timelimit}',
-                                '{adjusted_fd3}', 
+                                '{st.session_state.feedback3}', 
                                 '{st.session_state.pathvariety}',
-                                '{adjusted_fd4}',     
+                                '{st.session_state.feedback4}',     
                                 '{st.session_state.boredom}',
-                                '{adjusted_fd5}', 
+                                '{st.session_state.feedback5}', 
                                 {st.session_state.rating_A},
                                 {st.session_state.rating_B},
                                 '{st.session_state.random}',
