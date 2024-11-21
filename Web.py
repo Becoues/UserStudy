@@ -410,9 +410,9 @@ def render_floor_page():
     st.write(f"🙌使用滚轮可以放大缩小平面图~")
     # 要嵌入的网址
     if st.session_state.position == None:
-        src_url = "https://storerecommend.cn:8080"
+        src_url = "https://www.storerecommend.cn:8080"
     else:
-        src_url = f"https://storerecommend.cn:8080/?storeIdx={st.session_state.position}"
+        src_url = f"https://www.storerecommend.cn:8080/?storeIdx={st.session_state.position}"
     #src_url = "http://localhost:8080"
     # 要显示的部分的尺寸和位置
     position = {"top": -112, "left": 0, "width": 1600, "height": 800}
