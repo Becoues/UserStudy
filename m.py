@@ -4,7 +4,9 @@ import numpy as np
 import torch
 
 from models.ddsm import DDSM
+from models.miasr import MIASR
 from models.tools.utils import same_seeds, USE_CUDA
+
 
 
 def load_model(file_name):
@@ -13,13 +15,20 @@ def load_model(file_name):
         ablation = {'gamma': False, 'gru_gate': False, 'aik': False, 'switching_cost': False}
     elif file_name == 'ddsm-ds':
         ablation = {'gamma': True, 'gru_gate': True, 'aik': True, 'switching_cost': False}
+    elif file_name == 'miasr':
+        pass
     else:
         raise ValueError(file_name)
-    model = DDSM(group_num=6, demand_num=60, embed_dim=128, mc_type=['store', 'sector', 'zone'], func_type='square',
-                 rnn_params=rnn_params, feature_info=[[2], 1], index_path='./data/id2store.txt',
-                 ablation=ablation, tau=1)
+    if 'ddsm' in file_name:
+        model = DDSM(group_num=6, demand_num=60, embed_dim=128, mc_type=['store', 'sector', 'zone'], func_type='square',
+                     rnn_params=rnn_params, feature_info=[[2], 1], index_path='./data/id2store.txt',
+                     ablation=ablation, tau=1)
+        save_path = f'model_log/ddsm/{file_name}/'
+    else:
+        model = MIASR(embedding_size=96, store_num=171, layer_num=2, max_length=30, block_num=4, dropout=0.4,
+                      head_num=8, features="sector_zone")
+        save_path = f'model_log/miasr/'
     device = torch.device('cuda:0' if USE_CUDA else 'cpu')
-    save_path = f'model_log/ddsm/{file_name}/'
     model.load_model(save_path, 'final')
     model.to(device)
     return model
@@ -37,12 +46,13 @@ def get_percentile(likelihood: float, seq_length: int) -> List[str]:
 
 def main():
     model_1 = load_model('ddsm')
-    model_2 = load_model('ddsm-ds')
-    # model_3 = load_model('ddsm-sc')
+    # model_2 = load_model('ddsm-ds')
+    model_2 = load_model('miasr')
 
     while True:
         same_seeds(100)
-        seq = [110, 93, 45]
+        # seq = [110, 93, 45]
+        seq = [10, 18]
         # calculate_likelihood = True: 需要计算likelihood
         rec_1, log_likelihood = model_1.recommend(seq, calculate_likelihood=True)
         # rec_2 = model_2.recommend(seq)
@@ -58,17 +68,17 @@ def main():
         rec_2 = model_2.generate_seq(seq)
         # rec_3 = model_3.generate_seq(seq)
         print('DDSM:', rec_1)
-        print('DDSM-DS:', rec_2)
-        # print('DDSM-SC:', rec_3)
+        print('MIA-SR:', rec_2)
         break
+
 
 def model_ddsm(seq):
     model = load_model('ddsm')
     rec_1 = model.generate_seq(seq)
     return rec_1
 
-def model_ddsmds(seq):
-    model = load_model('ddsm-ds')
+def model_miasr(seq):
+    model = load_model('miasr')
     rec = model.generate_seq(seq)
     return rec
 
