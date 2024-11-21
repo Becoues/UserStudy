@@ -1,5 +1,5 @@
 from typing import List
-
+from typing import Any, List, Union, Tuple   
 import numpy as np
 import pandas as pd
 import torch
@@ -239,7 +239,7 @@ class MIASR(nn.Module):
 
     def recommend(
             self, seq: List[int], top_k: int = 5, candidates=None
-    ) -> tuple[list[int], float] | list[int]:
+    ) -> Union[tuple[list[int], float], list[int]]:
         """
         :param seq: 逛店轨迹的index，例如[42, 6, 12]
         :param top_k: 推荐列表长度
