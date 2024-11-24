@@ -509,14 +509,19 @@ def button_clicked():
                 adjusted_output_b.append(name)
         if "'" in st.session_state.feedback1:
             adjusted_fd1 = st.session_state.feedback1.replace("'", "''")
+        else: adjusted_fd1 = st.session_state.feedback1
         if "'" in st.session_state.feedback2:
             adjusted_fd2 = st.session_state.feedback2.replace("'", "''")
+        else: adjusted_fd2 = st.session_state.feedback2
         if "'" in st.session_state.feedback3:
             adjusted_fd3 = st.session_state.feedback3.replace("'", "''")
+        else: adjusted_fd3 = st.session_state.feedback3
         if "'" in st.session_state.feedback4:
             adjusted_fd4 = st.session_state.feedback4.replace("'", "''")
+        else: adjusted_fd4 = st.session_state.feedback4
         if "'" in st.session_state.feedback5:
             adjusted_fd5 = st.session_state.feedback5.replace("'", "''")
+        else: adjusted_fd5 = st.session_state.feedback5
         #链接数据库并导入
         st.session_state.sqlerro = False
         st.session_state.timeFinish = gettime()
@@ -763,7 +768,7 @@ def render_result_page():
     trace1 = "-".join(str(num) for num in input_idx)
     trace2 = "-".join(str(num) for num in output_idx_0)
     trace3 = "-".join(str(num) for num in output_idx_1)
-    url_trace = f"https://storerecommend.cn:8080/track.html?seq={trace1}&path-a={trace2}&path-b={trace3}"
+    url_trace = f"https://www.storerecommend.cn:8080/track.html?seq={trace1}&path-a={trace2}&path-b={trace3}"
     position = {"top": -150, "left": 0, "width": 1150, "height": 625}
     st.components.v1.html(f'''
     <div style="position: relative; overflow: hidden; width: {position["width"]}px; height: {position["height"]}px;">
